@@ -1,0 +1,19 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}">
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <main class="container">
+        <div class="target"> 
+          <form th:action="@{/logout}" method="post">
+            <legend> 
+              <p>Are you sure that you want to close this session?</p>
+            </legend>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="button cyan">Logout</button>
+          </form>
+        </div>
+    </main>
+  </body>
+  <script th:src="@{/js/app.js}"></script>
+</html>

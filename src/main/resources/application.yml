@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: minicloud
+
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: file:src/main/resources/templates/
+
+  resources:
+    static-locations: file:src/main/resources/static/
+    cache:
+      period: 0
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/miniclouddb?createDatabaseIfNotExist=true
+    username: root 
+    password: este5ban9
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database: mysql 
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+var:
+  title: ${spring.application.name}
+  filepath: ./files
+  email-api:
+    url: https://emailapi-9qbt.onrender.com
+    username: estebandev
+    password: ZS0F5XebG6Q6ct4nry
+
+logging:
+  level:
+    org.springframework.web: DEBUG 
+    org.hibernate: WARN

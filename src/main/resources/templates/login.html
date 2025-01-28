@@ -1,0 +1,46 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}">
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <main class="container flex-col">
+      <div class="container-float"> 
+          <div class=""> 
+              <div th:if="${param.register_ok}" class="target m-t-3">
+                <div class="error-section"> 
+                  <i class="bi bi-emoji-smile"></i>
+                  <p>Account created sucessfull</p>
+                </div>
+              </div>
+              <div th:if="${param.error}" class="target m-t-3">
+                <div class="error-section"> 
+                  <i class="bi bi-exclamation-lg"></i>
+                  <p th:text="${session.error}"></p>
+                </div>
+              </div>
+              <div th:if="${param.logout}" class="target m-t-3">
+                <div class="error-section"> <i class="bi bi-info-lg"></i>
+                  <p>You have been logged out.</p>
+                </div>
+              </div>
+          </div>
+      </div>
+      <div class="target">
+          <form class="form" method="post" th:action="@{/login}">
+          <legend><h1>Log in</h1></legend>
+
+          <label for="email">Your e-mail</label>
+          <input type="email" name="email" placeholder="email" required/>
+
+          <label for="password">Your password</label>
+          <input type="password" name="password" placeholder="Password"/>
+          <p>Do not have an account? <a th:href="@{/register}">Create one</a></p>
+          <p>Forget your password? <a th:href="@{/recoveryportal}">Change your password</a></p>
+          
+          <button type="submit" class="button cyan">Submit</button>
+        </form>
+      </div>
+    </main>
+  </body>
+  <script th:src="@{/js/app.js}"></script>
+</html>

@@ -1,0 +1,246 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap");
+:root {
+  --color1: #8d9b8e;
+  --color2: #b9ada3;
+  --cyan: #39d2c6;
+  --dark-cyan: #28b1a6;
+  --white: #e5e5e5;
+  --black: #1c1c1c;
+}
+
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+
+  font-family: "Fira Code", serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+}
+
+body {
+  font-size: 1.4rem;
+}
+
+.header {
+  background-color: var(--color1);
+  display: flex;
+  color: white;
+  border-bottom: 2px solid var(--black);
+
+  margin-bottom: 2rem;
+  padding: 0.2rem;
+  align-items: center;
+  justify-content: space-between;
+  height: 7.5rem;
+  max-height: 7.5rem;
+}
+
+.brand {
+  display: flex;
+  text-decoration: none;
+  color: var(--white);
+}
+
+main {
+  display: flex;
+  margin: 0 5rem;
+  min-height: 80vh;
+}
+
+.brand-image {
+  width: 5rem;
+}
+
+.button {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  border: 2px solid var(--black);
+  width: fit-content;
+  height: fit-content;
+  background-color: var(--color2);
+
+  text-decoration: none;
+  color: black;
+  font-size: 1.5rem;
+}
+
+.button:hover {
+  background-color: var(--cyan);
+  cursor: pointer;
+}
+
+.button:hover, .button-abstract:hover {
+  background-color: var(--cyan);
+  cursor: pointer;
+}
+
+.button-abstract {
+  color: var(--white);
+  border: 1px solid var(--black);
+  background-color: var(--color2);
+
+  color: black;
+  font-size: 1.5rem;
+  padding: .4rem;
+}
+
+.cyan {
+  background-color: var(--cyan);
+  color: black;
+}
+
+.text-cyan { 
+  color: var(--cyan);
+}
+
+.cyan:hover {
+  background-color: var(--dark-cyan);
+  /*color: var(--white);*/
+}
+
+.target {
+  text-decoration: none;
+  font-weight: 600;
+  padding: 1rem;
+  border: 2px solid var(--black);
+  width: fit-content;
+  background-color: var(--white);
+
+  text-decoration: none;
+  color: black;
+  font-size: 1.5rem;
+}
+
+.dot-button {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  width: fit-content;
+  display: flex;
+  gap: 1rem;
+
+  text-decoration: none;
+  color: black;
+  font-size: 1.5rem;
+}
+
+.dot-button:hover {
+  cursor: pointer;
+}
+
+.dot i {
+  color: var(--color1);
+  text-shadow:
+    -2px 0 black,
+    0 2px black,
+    2px 0 black,
+    0 -2px black;
+}
+
+.dot-hover > i {
+  color: var(--cyan);
+}
+
+.footer {
+  border-bottom: 0;
+  border-top: 2px solid var(--black);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: start;
+  gap: 0.3rem;
+
+  width: max-content;
+  min-width: 34rem;
+  max-width: 34rem;
+}
+
+.form input,
+.form textarea {
+  background-color: var(--color1);
+  color: white;
+  padding: 0.3rem;
+  border: 1px solid var(--black);
+  width: 100%;
+}
+
+.form label {
+  margin-top: 0.5rem;
+}
+
+.form button[type="submit"] {
+  margin-top: 0.4rem;
+}
+
+.container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.m-t-3 {
+  margin-top: 3rem;
+}
+
+.container-float {
+  margin-top: 8rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.error-section {
+  background-color: var(--white);
+  width: max-content;
+  min-width: 34rem;
+  max-width: 34rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#passwordInput {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.section {
+  max-width: 40rem;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.light {
+  font-weight: 100;
+}

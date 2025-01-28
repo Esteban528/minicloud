@@ -1,0 +1,16 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}">
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <main class="container flex-col">
+      <div class="target">
+          <form class="form" method="get" th:action="@{/passwordrecovery}">
+          <legend><h1>Recovery portal</h1></legend>
+          <label for="email">Your e-mail</label>
+          <input type="email" name="email" placeholder="email" required/>
+          <button type="submit" class="button cyan">Next</button>
+        </form>
+      </div>
+    </main>
+  </body>

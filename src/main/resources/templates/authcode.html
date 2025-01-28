@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <th:block th:insert="~{head :: headFragment}"></th:block>
+</head>
+<body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <main class="container">
+        <div class="target section">
+            <form th:action="@{/register}" method="post" th:object="${registerUserDTO}" class="form">
+                <legend>
+                    <p>
+                        We have sent a code to your email
+                        <span class="bold" th:text="*{email}"></span>
+                        <br />
+                        <span class="light">This process may take a few minutes.</span>
+                    </p>
+                    <p th:if="${error != null}" class="target m-t-3" th:text="${error}"></p>
+                </legend>
+                
+                <input type="number" id="code" name="code" placeholder="Confirm code" required />
+                
+                <input type="hidden" id="nickname" name="nickname" th:field="*{nickname}" />
+                
+                <div th:if="${registerUserDTO.email != null}">
+                    <input type="hidden" id="email" name="email" th:field="*{email}" />
+                </div>
+                <input th:unless="${registerUserDTO.email != null}" type="email" id="email" name="email" th:field="*{email}" placeholder="Ej: mail@domain.com" required />
+                
+                <input type="hidden" id="password" name="password" th:field="*{password}" />
+                
+                <button type="submit" class="button cyan">Confirm</button>
+            </form>
+        </div>
+    </main>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
