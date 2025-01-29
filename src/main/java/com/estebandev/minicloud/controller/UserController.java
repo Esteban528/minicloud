@@ -66,11 +66,8 @@ public class UserController {
             return "register";
         }
 
-        try {
-            userService.validUser(userRegistrationForm);
-
-        } catch (UserAlreadyExistsException e) {
-            bindingResult.rejectValue("email", "user.exists", e.getMessage());
+        if(userService.isUserExists(userRegistrationForm.getEmail())){
+            bindingResult.rejectValue("email", "user.exists", "This email already exists");
             return "register";
         }
 

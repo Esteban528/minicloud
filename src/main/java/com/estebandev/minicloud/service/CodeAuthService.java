@@ -10,11 +10,14 @@ import org.springframework.stereotype.Service;
 import com.estebandev.minicloud.service.exception.EmailServiceException;
 import com.estebandev.minicloud.service.exception.ManyAttempsException;
 
+import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @RequiredArgsConstructor
+@Getter
 public class CodeAuthService {
     private int code = 0;
     private final EmailService emailService;
@@ -45,13 +48,13 @@ public class CodeAuthService {
         return code == this.code && email.equals(this.email);
     }
 
-    private int makeCode(String email) {
+    public int makeCode(String email) {
         this.code = generateCode();
         this.email = email;
         return this.code;
     }
     
-    private int generateCode() {
+    public int generateCode() {
         Random random = new Random();
         int code = random.nextInt(9000) + 1000;
         return code;

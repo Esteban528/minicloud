@@ -35,27 +35,21 @@ public class UserService {
                 User.builder()
                         .email(email)
                         .nickname(nickname)
-                        .password(passwordEncoder.encode(password))
+                        .password(password)
                         .scopes(new ArrayList<>())
                         .build());
     }
 
     public User createUser(User user) {
+        String tmpPassword = user.getPassword();
+        user.setPassword(passwordEncoder.encode(tmpPassword));
+        tmpPassword = null;
         user.getScopes().add(Scopes.builder().user(user).authority("USER").build());
         return userRepository.save(user);
     }
 
-    public void validUserByEmail(String email) throws UserAlreadyExistsException {
-        if (isUserExists(email))
-            throw new UserAlreadyExistsException("User already exists");
-    }
-
     public boolean isUserExists(String email) {
         return userRepository.findByEmail(email.toLowerCase()).orElse(null) != null;
-    }
-
-    public void validUser(RegisterUserDTO regDto) throws UserAlreadyExistsException {
-        this.validUserByEmail(regDto.getEmail());
     }
 
     public boolean isAuthenticated() {
