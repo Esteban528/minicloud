@@ -17,7 +17,6 @@ import com.estebandev.minicloud.service.CodeAuthService;
 import com.estebandev.minicloud.service.UserService;
 import com.estebandev.minicloud.service.exception.EmailServiceException;
 import com.estebandev.minicloud.service.exception.ManyAttempsException;
-import com.estebandev.minicloud.service.exception.UserAlreadyExistsException;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,44 +58,51 @@ public class UserController {
     public String createUser(
             @Valid RegisterUserDTO userRegistrationForm,
             BindingResult bindingResult,
-            Model model,
-            @RequestParam(required = false, defaultValue = "0") int code) {
+            Model model) {
 
         if (bindingResult.hasErrors()) {
             return "register";
         }
 
-        if(userService.isUserExists(userRegistrationForm.getEmail())){
+        if (userService.isUserExists(userRegistrationForm.getEmail())) {
             bindingResult.rejectValue("email", "user.exists", "This email already exists");
             return "register";
         }
 
         model.addAttribute("registerUserDTO", userRegistrationForm);
 
-        if (code == 0) {
-            try {
-                codeAuthService.sendCodeToEmail(userRegistrationForm.getEmail());
+        try {
+            codeAuthService.sendCodeToEmail(userRegistrationForm.getEmail());
+        } catch (EmailServiceException e) {
+            logger.error("EmailServiceException {}", e.getMessage(), e.getStackTrace());
+            bindingResult.rejectValue("email", "user.exists", "An error occurred. Please try again later.");
+            return "register";
+        }
+
+        return "authcode";
+    }
+
+    @PostMapping("/register/verifyCode")
+    public String registerVerifyCode(
+            @Valid RegisterUserDTO userRegistrationForm,
+            BindingResult bindingResult,
+            Model model,
+            @RequestParam(required = true) int code) {
+
+        model.addAttribute("registerUserDTO", userRegistrationForm);
+        try {
+            if (codeAuthService.validateCode(userRegistrationForm.getEmail(), code)) {
+                userService.createUser(userRegistrationForm.getEmail(), userRegistrationForm.getNickname(),
+                        userRegistrationForm.getPassword());
+                return "redirect:/login?register_ok";
+            } else {
+                model.addAttribute("error", "The code was wrong.");
                 return "authcode";
-            } catch (EmailServiceException e) {
-                logger.error(String.format("EmailServiceException %s: %s", e.getLocalizedMessage()));
-                bindingResult.rejectValue("email", "user.exists", "An error occurred. Please try again later.");
-                return "register";
             }
-        } else {
-            try {
-                if (codeAuthService.validateCode(userRegistrationForm.getEmail(), code)) {
-                    userService.createUser(userRegistrationForm.getEmail(), userRegistrationForm.getNickname(),
-                            userRegistrationForm.getPassword());
-                    return "redirect:/login?register_ok";
-                } else {
-                    model.addAttribute("error", "The code was wrong.");
-                    return "authcode";
-                }
-            } catch (ManyAttempsException e) {
-                logger.info(String.format("User has reached max attemps - %s", userRegistrationForm.getEmail()));
-                bindingResult.rejectValue("email", "user.blocked", e.getMessage());
-                return "register";
-            }
+        } catch (ManyAttempsException e) {
+            logger.info("User has reached max attemps  {}", userRegistrationForm.getEmail(), e.getMessage(), e.getStackTrace());
+            bindingResult.rejectValue("email", "user.blocked", e.getMessage());
+            return "register";
         }
     }
 
@@ -145,7 +151,7 @@ public class UserController {
     }
 
     @PostMapping("/passwordrecovery/changepassword")
-    public String passwordrecoveryPut(@RequestParam(required = true) String email,
+    public String changePassword(@RequestParam(required = true) String email,
             @RequestParam(required = true) int code,
             @RequestParam(required = true) String password,
             Model model) {
