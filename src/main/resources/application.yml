@@ -33,6 +33,8 @@ spring:
 var:
   title: ${spring.application.name}
   filepath: ./files
+  admin:
+    email: estebangonza2005@gmail.com
   email-api:
     url: https://emailapi-9qbt.onrender.com
     username: estebandev

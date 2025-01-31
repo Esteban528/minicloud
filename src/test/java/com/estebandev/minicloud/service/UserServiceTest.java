@@ -14,19 +14,25 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import com.estebandev.minicloud.entity.Scopes;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.repository.UserRepository;
 
@@ -42,13 +48,18 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    private String adminEmail = "admin@example.com";
+
+    @BeforeEach
+    void beforeTest() {
+        ReflectionTestUtils.setField(userService, "adminEmail", adminEmail);
+    }
+
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
-    // Tests existentes...
-    
     @Test
     public void findByEmailTest() {
         String email = "test@minicloud.com";
@@ -83,6 +94,55 @@ public class UserServiceTest {
     }
 
     @Test
+    public void createUserTestEntityAdminAuthorities() {
+        String email = adminEmail;
+        System.out.println(email);
+        User user = User.builder()
+                .nickname("TestUser")
+                .email(email)
+                .password("TestPassword")
+                .scopes(new ArrayList<>())
+                .build();
+
+        when(userRepository.save(user)).thenReturn(user);
+        when(passwordEncoder.encode("TestPassword")).thenReturn("asd");
+
+        User finalUser = userService.createUser(user);
+
+        verify(userRepository).save(user);
+        verify(passwordEncoder).encode("TestPassword");
+        assertThat(finalUser.getPassword()).isEqualTo("asd");
+        assertThat(finalUser.getScopes()).contains(
+                Scopes.builder().user(finalUser).authority("ROLE_USER").build(),
+                Scopes.builder().user(finalUser).authority("ADMIN_DASHBOARD").build(),
+                Scopes.builder().user(finalUser).authority("FILE_DASHBOARD").build(),
+                Scopes.builder().user(finalUser).authority("FILE_UPLOAD").build());
+    }
+
+    @Test
+    public void createUserTestEntityUserAuthorities() {
+        String email = "example@minicloud.com";
+        System.out.println(email);
+        User user = User.builder()
+                .nickname("TestUser")
+                .email(email)
+                .password("TestPassword")
+                .scopes(new ArrayList<>())
+                .build();
+
+        when(userRepository.save(user)).thenReturn(user);
+        when(passwordEncoder.encode("TestPassword")).thenReturn("asd");
+
+        User finalUser = userService.createUser(user);
+
+        verify(userRepository).save(user);
+        verify(passwordEncoder).encode("TestPassword");
+        assertThat(finalUser.getPassword()).isEqualTo("asd");
+        assertThat(finalUser.getScopes()).containsOnly(
+                Scopes.builder().user(finalUser).authority("ROLE_USER").build());
+    }
+
+    @Test
     public void createUserTestParams() {
         String email = "test@minicloud.com";
         String nickname = "TestUser";
@@ -96,20 +156,16 @@ public class UserServiceTest {
                 .build();
 
         when(passwordEncoder.encode(password)).thenReturn("asd");
-        when(userRepository.save(argThat(u -> 
-            u.getEmail().equals(email) && 
-            u.getNickname().equals(nickname) && 
-            u.getPassword().equals("asd")
-        )))
+        when(userRepository.save(argThat(u -> u.getEmail().equals(email) &&
+                u.getNickname().equals(nickname) &&
+                u.getPassword().equals("asd"))))
                 .thenReturn(user);
 
         userService.createUser(email, nickname, password);
 
-        verify(userRepository).save(argThat(u -> 
-            u.getEmail().equals(email) && 
-            u.getNickname().equals(nickname) && 
-            u.getPassword().equals("asd")
-        ));
+        verify(userRepository).save(argThat(u -> u.getEmail().equals(email) &&
+                u.getNickname().equals(nickname) &&
+                u.getPassword().equals("asd")));
         verify(passwordEncoder).encode(password);
     }
 
@@ -155,8 +211,7 @@ public class UserServiceTest {
                 .build();
 
         when(userRepository.findByEmail(email)).thenReturn(
-            Optional.of(user)
-        );
+                Optional.of(user));
         when(passwordEncoder.encode(newPassword)).thenReturn(newPassword);
 
         userService.updatePassword(email, newPassword);
@@ -164,8 +219,6 @@ public class UserServiceTest {
         verify(passwordEncoder).encode(oldPassword);
     }
 
-    // Nuevos tests para isAuthenticated()
-    
     @Test
     void isAuthenticated_WhenAuthenticationIsNull_ReturnsFalse() {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -194,9 +247,9 @@ public class UserServiceTest {
         Authentication auth = mock(Authentication.class);
         when(auth.isAuthenticated()).thenReturn(true);
         List<GrantedAuthority> authorities = Arrays.asList(
-            new SimpleGrantedAuthority("ADMIN")
-        );
-        //when(auth.getAuthorities()).thenReturn((Collection<? extends GrantedAuthority>) authorities);
+                new SimpleGrantedAuthority("ADMIN"));
+        // when(auth.getAuthorities()).thenReturn((Collection<? extends
+        // GrantedAuthority>) authorities);
         Mockito.doReturn(authorities).when(auth).getAuthorities();
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(auth);
@@ -211,8 +264,7 @@ public class UserServiceTest {
         Authentication auth = mock(Authentication.class);
         when(auth.isAuthenticated()).thenReturn(true);
         Collection<? extends GrantedAuthority> authorities = Collections.singletonList(
-            new SimpleGrantedAuthority("ROLE_USER")
-        );
+                new SimpleGrantedAuthority("ROLE_USER"));
         Mockito.doReturn(authorities).when(auth).getAuthorities();
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();

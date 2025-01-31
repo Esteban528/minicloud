@@ -1,7 +1,9 @@
 package com.estebandev.minicloud.service;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${var.admin.email}")
+    private String adminEmail;
+
     public User findByEmail(String email) {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("The user doesn't exist"));
@@ -44,7 +49,7 @@ public class UserService {
         String tmpPassword = user.getPassword();
         user.setPassword(passwordEncoder.encode(tmpPassword));
         tmpPassword = null;
-        user.getScopes().add(Scopes.builder().user(user).authority("ROLE_USER").build());
+        makeAuthorities(user);
         return userRepository.save(user);
     }
 
@@ -64,8 +69,23 @@ public class UserService {
     }
 
     public void updatePassword(String email, String newPassword) {
-        User user = userRepository.findByEmail(email.toLowerCase()).orElseThrow(()-> new UsernameNotFoundException("The user doesn't exist"));
+        User user = userRepository.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new UsernameNotFoundException("The user doesn't exist"));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    private void makeAuthorities(User user) {
+        user.getScopes().add(
+                Scopes.builder().user(user).authority("ROLE_USER").build());
+
+        if (user.getEmail().equals(this.adminEmail)) {
+            user.getScopes().addAll(
+                    List.of(Scopes.builder().user(user).authority("ADMIN_DASHBOARD").build(),
+
+                            Scopes.builder().user(user).authority("FILE_DASHBOARD").build(),
+
+                            Scopes.builder().user(user).authority("FILE_UPLOAD").build()));
+        }
     }
 }
