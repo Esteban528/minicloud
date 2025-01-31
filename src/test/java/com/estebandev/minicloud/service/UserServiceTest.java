@@ -211,7 +211,7 @@ public class UserServiceTest {
         Authentication auth = mock(Authentication.class);
         when(auth.isAuthenticated()).thenReturn(true);
         Collection<? extends GrantedAuthority> authorities = Collections.singletonList(
-            new SimpleGrantedAuthority("USER")
+            new SimpleGrantedAuthority("ROLE_USER")
         );
         Mockito.doReturn(authorities).when(auth).getAuthorities();
 

@@ -44,7 +44,7 @@ public class UserService {
         String tmpPassword = user.getPassword();
         user.setPassword(passwordEncoder.encode(tmpPassword));
         tmpPassword = null;
-        user.getScopes().add(Scopes.builder().user(user).authority("USER").build());
+        user.getScopes().add(Scopes.builder().user(user).authority("ROLE_USER").build());
         return userRepository.save(user);
     }
 
@@ -58,7 +58,7 @@ public class UserService {
             return false;
         }
         return authentication.isAuthenticated() && !authentication.getAuthorities().stream()
-                .filter(authority -> authority.getAuthority().equals("USER"))
+                .filter(authority -> authority.getAuthority().equals("ROLE_USER"))
                 .findFirst()
                 .isEmpty();
     }
