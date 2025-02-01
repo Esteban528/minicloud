@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+        <div th:fragment="adminDashboardHeader" class="container">
+          <a class="dot-button" th:href="@{/admin/users}">
+            <div
+              class="dot noeditable"
+              th:classappend="${section.equals('users')} ? 'dot-hover' : ''"
+            >
+              <i class="bi bi-circle-fill"></i>
+            </div>
+            User management
+          </a>
+        </div>
+  </body>
+</html>

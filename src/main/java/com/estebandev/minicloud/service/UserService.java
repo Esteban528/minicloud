@@ -35,6 +35,12 @@ public class UserService {
         return user;
     }
 
+    public User findById(long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("The user doesn't exist"));
+        return user;
+    }
+
     public User createUser(String email, String nickname, String password) {
         return createUser(
                 User.builder()

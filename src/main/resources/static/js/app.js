@@ -8,6 +8,9 @@ function dotButton() {
 
   dotsButton.forEach(button => {
     const dot = button.querySelector(':scope > .dot');
+    if (dot.classList.contains("noeditable")) {
+      return
+    }
     button.addEventListener("mouseenter", () => {
       dot.classList.add("dot-hover");
     })
@@ -36,7 +39,7 @@ function passwordInputButton() {
       if (inputType == "password") {
         input.type = "text";
         button.innerHTML = '<i class="bi bi-eye-slash-fill"></i>';
-      }else {
+      } else {
         input.type = "password";
         button.innerHTML = '<i class="bi bi-eye-fill"></i>';
       }

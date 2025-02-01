@@ -86,7 +86,8 @@ main {
   cursor: pointer;
 }
 
-.button:hover, .button-abstract:hover {
+.button:hover,
+.button-abstract:hover {
   background-color: var(--cyan);
   cursor: pointer;
 }
@@ -98,7 +99,7 @@ main {
 
   color: black;
   font-size: 1.5rem;
-  padding: .4rem;
+  padding: 0.4rem;
 }
 
 .cyan {
@@ -106,7 +107,7 @@ main {
   color: black;
 }
 
-.text-cyan { 
+.text-cyan {
   color: var(--cyan);
 }
 
@@ -199,6 +200,15 @@ main {
   align-items: center;
 }
 
+.container-align-left {
+  justify-content: start;
+  align-items: start;
+}
+
+.container-between {
+  justify-content: space-between;
+}
+
 .flex-col {
   flex-direction: column;
 }
@@ -243,4 +253,149 @@ main {
 
 .light {
   font-weight: 100;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-container {
+  width: 100rem;
+  max-width: 220rem;
+  margin: 2rem auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; 
+}
+
+.table-title {
+  font-size: 1.8rem;
+  color: var(--dark-cyan);
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.data-table {
+  border: 1px solid var(--black);
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  overflow: auto;
+}
+
+.table-scroll {
+  overflow-y: auto;
+}
+
+.data-table th {
+  background-color: var(--color1);
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.data-table td {
+  padding: 12px;
+  color: #34495e;
+}
+
+.data-table tr:hover {
+  background-color: #f8f9fa;
+  /*cursor: pointer;*/
+}
+
+.table-scroll-wrapper {
+  max-height: 50px; /* Altura máxima del cuerpo de la tabla */
+  overflow-y: auto; /* Habilita el scroll vertical */
+  display: block; /* Asegura que el wrapper sea un bloque */
+}
+
+
+/* Main container for pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0;
+  padding: 1rem;
+  background-color: var(--color1); /* Background color from the theme */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Styles for "Back" and "Next" buttons */
+.button-abstract {
+  font-size: 1.4rem; /* Font size consistent with the design */
+  padding: 0.6rem 1.2rem; /* Padding for better clickability */
+  border-radius: 4px; /* Slightly rounded corners */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.button-abstract:hover {
+  background-color: var(--cyan); /* Change to cyan on hover */
+  color: var(--black); /* Text color remains readable */
+}
+
+/* Container for page numbers */
+.pagination-links {
+  display: flex;
+  gap: 0.8rem; /* Space between page numbers */
+  align-items: center; /* Align items vertically */
+}
+
+/* Style for each page number */
+.dot-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2.5rem; /* Fixed size for the circle */
+  height: 2.5rem; /* Fixed size for the circle */
+  border-radius: 50%; /* Perfect circle */
+  background-color: var(--white); /* White background for inactive pages */
+  color: var(--black); /* Black text color */
+  font-weight: 600; /* Bold font weight */
+  font-size: 1.4rem; /* Font size consistent with the design */
+  text-decoration: none; /* Remove underline */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease; /* Smooth hover effect */
+}
+
+.dot:hover {
+  background-color: var(--cyan); /* Change to cyan on hover */
+  color: var(--black); /* Keep text readable */
+}
+
+/* Style for the active page */
+.cyan {
+  background-color: var(--cyan); /* Cyan background for active page */
+  color: var(--black); /* Black text color */
+}
+
+.cyan:hover {
+  background-color: var(--dark-cyan); /* Darker cyan on hover */
+}
+
+.user-icon {
+  max-width: 20rem;
+  border: 1px solid var(--black);
+  padding: 1rem;
+}
+
+.container-square {
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+}
+
+.mtop {
+  margin-top: 5rem;
 }

@@ -1,0 +1,104 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}"></head>
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <main class="main main-content">
+      <div class="container">
+        <a class="dot-button" th:href="@{/admin/users}">
+          <div class="dot">
+            <i class="bi bi-arrow-return-left"></i>
+          </div>
+          Return
+        </a>
+        <div th:insert="~{admin_header :: adminDashboardHeader}"></div>
+      </div>
+      <div class="container container-square mtop" style="gap: 5rem">
+        <div
+          class="target container container-align-left"
+          style="gap: 5rem; height: 45rem"
+        >
+          <div class="container container-sqaure flex-col">
+            <img class="user-icon" th:src="@{/images/userIcon.jpg}" alt="" />
+            <div
+              class="container flex-col col-container-align-left mtop"
+              style="height: 100%"
+            >
+              <form
+                th:action="@{/admin/users/update/{id}(id=${userDTO.id})}"
+                method="post"
+                class="form"
+                th:object="${userDTO}"
+              >
+                <legend th:text="'Editing User id ' + ${userDTO.id}"></legend>
+                <label for="nickname">Nickname</label>
+                <input
+                  type="text"
+                  id="nickname"
+                  name="nickname"
+                  th:field="*{nickname}"
+                  placeholder="Ej: Esteban"
+                />
+
+                <label for="email">e-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  th:field="*{email}"
+                  placeholder="Ej: mail@domain.com"
+                />
+                <button type="submit" class="button cyan">Submit edit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div
+          class="target container container-align-left container-between flex-col"
+          style="height: 45rem"
+        >
+          <h1>Scopes</h1>
+          <ol></ol>
+
+          <div
+            style="
+              max-height: 20rem;
+              overflow-y: auto;
+              border: 1px solid black;
+              width: 100%;
+            "
+          >
+            <table class="data-table">
+              <tbody>
+                <tr th:each="scope : ${userScopes}">
+                  <td class="bold" th:text="${scope.authority}"></td>
+                  <td>
+                    <form
+                      th:action="@{/admin/users/scopes/remove/{id}(id=${userDTO.id})}"
+                      method="post"
+                    >
+                      <input type="hidden" id="scopeId" name="scopeId" th:value="${scope.id}" />
+                      <button type="submit" class="button">
+                       Remove 
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <form
+            th:action="@{/admin/users/scopes/add/{id}(id=${userDTO.id})}"
+            method="post"
+            class="form"
+          >
+            <input type="text" id="authority" name="authority" />
+            <button type="submit" class="button cyan">Add scope</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </body>
+  <script th:src="@{/js/app.js}"></script>
+</html>
