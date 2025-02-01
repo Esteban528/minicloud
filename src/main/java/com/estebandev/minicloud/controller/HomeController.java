@@ -20,8 +20,8 @@ public class HomeController {
         return "redirect:/";
     }
 
-    @GetMapping("/admin")
-    public String admin() {
-        return "home";
+    @GetMapping("/error")
+    public String error() {
+        return "redirect:/";
     }
 }

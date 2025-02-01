@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService userDetailsService;
@@ -41,9 +43,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(httz -> {
                     httz
                             .requestMatchers(
-                                "/register/**", "/login/**", "/", "/recoveryportal/**", "/passwordrecovery/**")
+                                    "/register/**", "/login/**", "/", "/recoveryportal/**", "/passwordrecovery/**", "/css/**", "/js/**", "/images/**")
                             .permitAll()
-                            .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                            .requestMatchers("/admin/**").hasAuthority("ADMIN_DASHBOARD")
                             .anyRequest().authenticated();
                 })
                 .logout(logout -> {

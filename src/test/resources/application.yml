@@ -17,6 +17,8 @@ spring:
 var:
   title: ${spring.application.name}
   filepath: ./files-test
+  admin:
+    email: test@minicloud.com
   email-api:
     url: http://localhost:8081
     username: testuser

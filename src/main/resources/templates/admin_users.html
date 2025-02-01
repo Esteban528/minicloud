@@ -1,0 +1,80 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}"></head>
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <main class="main-content">
+      <div class="container">
+        <a class="dot-button" th:href="@{/admin/dashboard}">
+          <div class="dot">
+            <i class="bi bi-arrow-return-left"></i>
+          </div>
+          Return
+        </a>
+        <div th:insert="~{admin_header :: adminDashboardHeader}"></div>
+      </div>
+      <hr />
+
+      <div th:if="${userList.isEmpty()}">There are not users.</div>
+      <div
+        th:unless="${userList.isEmpty()}"
+        class="container flex-col col-container-align-left"
+      >
+        <div class="table-container">
+          <div class="table-title">Users registered</div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nickname</th>
+                <th>Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody th:each="user :${userList}">
+              <tr>
+                <td class="bold" th:text="${user.nickname}"></td>
+                <td class="bold" th:text="${user.email}"></td>
+                <td>
+                  <a
+                    th:href="@{/admin/users/view/{id}(id=${user.id})}"
+                    class="button"
+                    >View</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="container pagination-container">
+            <a
+              th:if="${page > 0}"
+              th:href="@{/admin/users(page=${page - 1})}"
+              class="button button-abstract"
+            >
+              Previous
+            </a>
+
+            <div class="pagination-links">
+              <div th:each="pageNumber : ${pageList}" class="dot-button">
+                <a
+                  th:href="@{/admin/users(page=${pageNumber - 1})}"
+                  th:text="${pageNumber}"
+                  th:class="${pageNumber - 1 == page} ? 'dot cyan' : 'dot'"
+                ></a>
+              </div>
+            </div>
+
+            <a
+              th:if="${allPages - 1 > page}"
+              th:href="@{/admin/users(page=${page + 1})}"
+              class="button button-abstract"
+            >
+              Next
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+  <script th:src="@{/js/app.js}"></script>
+</html>
