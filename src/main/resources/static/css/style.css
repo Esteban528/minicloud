@@ -1,4 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap");
+
+/* Global variables */
 :root {
   --color1: #8d9b8e;
   --color2: #b9ada3;
@@ -8,40 +10,43 @@
   --black: #1c1c1c;
 }
 
+/* Base styles for HTML */
 html {
-  font-size: 62.5%;
+  font-size: 62.5%; /* Set base font size to 10px */
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-
   font-family: "Fira Code", serif;
   font-optical-sizing: auto;
   font-weight: 200;
   font-style: normal;
 }
 
+/* Inherit box-sizing for all elements */
 *,
 *:before,
 *:after {
   box-sizing: inherit;
 }
 
+/* Headings styling */
 h1,
 h2,
 h3 {
   font-weight: 700;
 }
 
+/* Body default styles */
 body {
   font-size: 1.4rem;
 }
 
+/* Header section */
 .header {
   background-color: var(--color1);
   display: flex;
   color: white;
   border-bottom: 2px solid var(--black);
-
   margin-bottom: 2rem;
   padding: 0.2rem;
   align-items: center;
@@ -56,6 +61,7 @@ body {
   color: var(--white);
 }
 
+/* Main content container */
 main {
   display: flex;
   margin: 0 5rem;
@@ -66,6 +72,7 @@ main {
   width: 5rem;
 }
 
+/* Button styles */
 .button {
   color: var(--white);
   text-decoration: none;
@@ -75,8 +82,6 @@ main {
   width: fit-content;
   height: fit-content;
   background-color: var(--color2);
-
-  text-decoration: none;
   color: black;
   font-size: 1.5rem;
 }
@@ -86,36 +91,36 @@ main {
   cursor: pointer;
 }
 
-.button:hover,
-.button-abstract:hover {
-  background-color: var(--cyan);
-  cursor: pointer;
-}
-
+/* Abstract button variant */
 .button-abstract {
   color: var(--white);
   border: 1px solid var(--black);
   background-color: var(--color2);
-
   color: black;
   font-size: 1.5rem;
   padding: 0.4rem;
 }
 
+.button-abstract:hover {
+  background-color: var(--cyan);
+  cursor: pointer;
+}
+
+/* Cyan-themed styles */
 .cyan {
   background-color: var(--cyan);
   color: black;
+}
+
+.cyan:hover {
+  background-color: var(--dark-cyan);
 }
 
 .text-cyan {
   color: var(--cyan);
 }
 
-.cyan:hover {
-  background-color: var(--dark-cyan);
-  /*color: var(--white);*/
-}
-
+/* Target button style */
 .target {
   text-decoration: none;
   font-weight: 600;
@@ -123,12 +128,11 @@ main {
   border: 2px solid var(--black);
   width: fit-content;
   background-color: var(--white);
-
-  text-decoration: none;
   color: black;
   font-size: 1.5rem;
 }
 
+/* Dot button style */
 .dot-button {
   color: var(--white);
   text-decoration: none;
@@ -137,8 +141,6 @@ main {
   width: fit-content;
   display: flex;
   gap: 1rem;
-
-  text-decoration: none;
   color: black;
   font-size: 1.5rem;
 }
@@ -160,18 +162,19 @@ main {
   color: var(--cyan);
 }
 
+/* Footer section */
 .footer {
   border-bottom: 0;
   border-top: 2px solid var(--black);
 }
 
+/* Form styles */
 .form {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: start;
   gap: 0.3rem;
-
   width: max-content;
   min-width: 34rem;
   max-width: 34rem;
@@ -194,6 +197,7 @@ main {
   margin-top: 0.4rem;
 }
 
+/* Container styles */
 .container {
   display: flex;
   justify-content: space-around;
@@ -227,6 +231,7 @@ main {
   justify-content: center;
 }
 
+/* Error section */
 .error-section {
   background-color: var(--white);
   width: max-content;
@@ -260,6 +265,7 @@ main {
   flex-direction: column;
 }
 
+/* Table container */
 .table-container {
   width: 100rem;
   max-width: 220rem;
@@ -267,7 +273,7 @@ main {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  overflow-y: auto; 
+  overflow-y: auto;
 }
 
 .table-title {
@@ -303,49 +309,33 @@ main {
 
 .data-table tr:hover {
   background-color: #f8f9fa;
-  /*cursor: pointer;*/
 }
 
 .table-scroll-wrapper {
-  max-height: 50px; /* Altura máxima del cuerpo de la tabla */
-  overflow-y: auto; /* Habilita el scroll vertical */
-  display: block; /* Asegura que el wrapper sea un bloque */
+  max-height: 50px; /* Maximum height for table body */
+  overflow-y: auto; /* Enable vertical scrolling */
+  display: block; /* Ensure wrapper is a block element */
 }
 
-
-/* Main container for pagination */
+/* Pagination container */
 .pagination-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 2rem 0;
   padding: 1rem;
-  background-color: var(--color1); /* Background color from the theme */
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  background-color: var(--color1);
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Styles for "Back" and "Next" buttons */
-.button-abstract {
-  font-size: 1.4rem; /* Font size consistent with the design */
-  padding: 0.6rem 1.2rem; /* Padding for better clickability */
-  border-radius: 4px; /* Slightly rounded corners */
-  transition: background-color 0.3s ease; /* Smooth hover effect */
-}
-
-.button-abstract:hover {
-  background-color: var(--cyan); /* Change to cyan on hover */
-  color: var(--black); /* Text color remains readable */
-}
-
-/* Container for page numbers */
+/* Pagination links */
 .pagination-links {
   display: flex;
-  gap: 0.8rem; /* Space between page numbers */
-  align-items: center; /* Align items vertically */
+  gap: 0.8rem;
+  align-items: center;
 }
 
-/* Style for each page number */
 .dot-button {
   display: flex;
   justify-content: center;
@@ -356,40 +346,39 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 2.5rem; /* Fixed size for the circle */
-  height: 2.5rem; /* Fixed size for the circle */
-  border-radius: 50%; /* Perfect circle */
-  background-color: var(--white); /* White background for inactive pages */
-  color: var(--black); /* Black text color */
-  font-weight: 600; /* Bold font weight */
-  font-size: 1.4rem; /* Font size consistent with the design */
-  text-decoration: none; /* Remove underline */
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease; /* Smooth hover effect */
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--white);
+  color: var(--black);
+  font-weight: 600;
+  font-size: 1.4rem;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dot:hover {
-  background-color: var(--cyan); /* Change to cyan on hover */
-  color: var(--black); /* Keep text readable */
+  background-color: var(--cyan);
+  color: var(--black);
 }
 
-/* Style for the active page */
 .cyan {
-  background-color: var(--cyan); /* Cyan background for active page */
-  color: var(--black); /* Black text color */
+  background-color: var(--cyan);
+  color: var(--black);
 }
 
 .cyan:hover {
-  background-color: var(--dark-cyan); /* Darker cyan on hover */
+  background-color: var(--dark-cyan);
 }
 
+/* User icon */
 .user-icon {
   max-width: 20rem;
   border: 1px solid var(--black);
   padding: 1rem;
 }
 
+/* Square container */
 .container-square {
   align-items: center;
   justify-content: center;

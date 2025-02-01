@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminService {
     private final UserRepository userRepository;
     private final UserService userService;
-    private final int PAGE_SIZE = 10;
+    public final int PAGE_SIZE = 10;
 
     public List<User> findAllUsers() {
         return userRepository.findAll();
