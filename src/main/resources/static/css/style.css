@@ -388,3 +388,124 @@ main {
 .mtop {
   margin-top: 5rem;
 }
+
+/*File manager section*/
+.main-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.file_asidebar {
+  background-color: var(--white);
+  border-right: 2px solid var(--black);
+  padding: 2rem;
+  min-width: 25rem;
+  height: 100vh;
+}
+
+.file_iconUser {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(---black);
+}
+
+.file_iconUser > p {
+}
+
+.file_iconUser img {
+  max-width: 3rem;
+  max-height: 3rem;
+  border: 1px solid var(--black);
+  border-radius: 0.5rem;
+}
+
+.file_separator {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--black);
+}
+
+.file_asidebar_section a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  color: black;
+  font-size: 2rem;
+}
+
+.file_asidebar_section a:hover {
+  font-weight: 700;
+  border-bottom: 1px solid var(--black);
+  transition: font-weight 0.3s;
+}
+
+.file_main_content {
+  width: 100%;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.file_main_route {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+.file_main_route p {
+  font-weight: 600;
+}
+
+.file_folder_container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  margin-top: 2rem;
+  gap: 3rem;
+}
+
+@media (min-width: 600px) {
+  .file_folder_container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1300px) {
+  .file_folder_container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1600px) {
+  .file_folder_container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.file_folder {
+  display: flex;
+  gap: 1rem;
+}
+
+.file_folder_icon img {
+  width: 10rem;
+  height: 10rem;
+  max-height: 10rem;
+  max-width: 10rem;
+
+  border: 1px solid var(---black);
+}
+
+.file_folder_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.file_folder_title {
+  color: black;
+  text-decoration: none;
+}
+
+.file_folder_title:hover {
+  color: var(--dark-cyan);
+}
