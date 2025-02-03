@@ -1,0 +1,44 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}"></head>
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <div class="main-container">
+      <aside th:insert="~{files_aside :: asidebar}"></aside>
+      <main class="file_main_content">
+        <div class="mtop"> 
+        <a href="#" class="button mtop">
+          <i class="bi bi-arrow-return-left"></i> Back</a
+        >
+        </div>
+        <div class="file_main_route">
+          <i class="bi bi-folder-fill"></i>
+          <p>/home/estebandev/.nix</p>
+        </div>
+        <div class="file_folder_container">
+          <div class="file_folder target">
+            <div class="file_folder_icon">
+              <img
+                src="https://i.pinimg.com/736x/93/15/95/93159593785ce1456f019c4f2342a82b.jpg"
+                alt=""
+              />
+            </div>
+            <div class="file_folder_content">
+              <a class="file_folder_title" href="#">SourceCode.tar</a>
+
+              <a class="dot-button" href="#">
+                <div class="dot">
+                  <i class="bi bi-circle-fill"></i>
+                </div>
+                Download
+              </a>
+            </div>
+          </div>
+          <!--finish folder-->
+        </div>
+      </main>
+      <aside></aside>
+    </div>
+  </body>
+  <script th:src="@{/js/app.js}"></script>
+</html>

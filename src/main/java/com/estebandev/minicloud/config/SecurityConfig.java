@@ -46,6 +46,7 @@ public class SecurityConfig {
                                     "/register/**", "/login/**", "/", "/recoveryportal/**", "/passwordrecovery/**", "/css/**", "/js/**", "/images/**")
                             .permitAll()
                             .requestMatchers("/admin/**").hasAuthority("ADMIN_DASHBOARD")
+                            .requestMatchers("/files/**").hasAuthority("FILE_DASHBOARD")
                             .anyRequest().authenticated();
                 })
                 .logout(logout -> {
