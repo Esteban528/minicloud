@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <aside class="file_asidebar" th:fragment="asidebar">
+      <div class="file_iconUser">
+        <img
+          th:src="@{/images/userIcon.jpg}"
+          alt=""
+        />
+        <p th:text="${nickname}"></p>
+      </div>
+
+      <div class="file_asidebar_section">
+        <a href="">
+          <i class="bi bi-folder2-open"></i>
+          <p>My directory</p>
+        </a>
+      </div>
+      <div class="file_separator"></div>
+      <div class="file_asidebar_buttons">
+        <div class="file_line_section">
+          <div class="file_asidebar_section">
+            <a href="">
+              <i class="bi bi-folder-plus"></i>
+              <p>Create folder</p>
+            </a>
+          </div>
+          <div class="file_asidebar_section">
+            <a href="">
+              <i class="bi bi-cloud-upload"></i>
+              <p>Upload file</p>
+            </a>
+          </div>
+
+          <div class="file_asidebar_section">
+            <a href="">
+              <i class="bi bi-lock"></i>
+              <p>Manage perms</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </body>
+</html>

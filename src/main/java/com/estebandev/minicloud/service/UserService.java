@@ -4,20 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.estebandev.minicloud.controller.dto.RegisterUserDTO;
 import com.estebandev.minicloud.entity.Scopes;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.repository.UserRepository;
-import com.estebandev.minicloud.service.exception.UserAlreadyExistsException;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -93,5 +90,11 @@ public class UserService {
 
                             Scopes.builder().user(user).authority("FILE_UPLOAD").build()));
         }
+    }
+
+    public User getUserFromAuth() { 
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        String email = securityContext.getAuthentication().getName();
+        return userRepository.findByEmail(email).get();
     }
 }
