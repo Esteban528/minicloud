@@ -41,7 +41,7 @@ public class FileDashboardController {
 
     @GetMapping()
     public String showDashboard(Model model) {
-        return "redirect:/files/action/go/dir";
+        return "redirect:/files/action/createIfNotExistPersonalDirectory";
     }
 
     @GetMapping("/action/createIfNotExistPersonalDirectory")
@@ -69,12 +69,6 @@ public class FileDashboardController {
             Model model,
             WebRequest webRequest)
             throws IOException, FileNotFoundException {
-
-        long eTag = fileManagerService.getLastModifiedDateInMinutes(pathString);
-
-        if (webRequest.checkNotModified(eTag)) {
-            return null;
-        }
 
         try {
             List<FileData> fileList = fileManagerService.listFiles(pathString);

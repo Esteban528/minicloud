@@ -59,9 +59,6 @@ public class SecurityConfig {
                             .clearAuthentication(true)
                             .permitAll();
                 })
-                .headers(headerConfig -> headerConfig.cacheControl(cache -> {
-                    cache.disable();
-                }))
                 .build();
     }
 
