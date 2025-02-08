@@ -1,5 +1,6 @@
 package com.estebandev.minicloud.controller;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
@@ -15,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.service.FileManagerService;
 import com.estebandev.minicloud.service.UserService;
-import com.estebandev.minicloud.service.exception.FileNotFoundException;
+import com.estebandev.minicloud.service.utils.FileManagerUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class FileDashboardControllerAdvice {
     private final UserService userService;
     private final FileManagerService fileManagerService;
+
     @SuppressWarnings("rawtypes")
 	private final Map<Class, String> predefineMessages = Map.ofEntries(
             Map.entry(HandlerMethodValidationException.class, "Illegal characters"));
@@ -40,7 +42,7 @@ public class FileDashboardControllerAdvice {
 
     @ExceptionHandler({ IOException.class, FileNotFoundException.class, IllegalArgumentException.class,
             MaxUploadSizeExceededException.class, ConstraintViolationException.class,
-            HandlerMethodValidationException.class })
+            HandlerMethodValidationException.class, FileNotFoundException.class })
     public String manageIOException(RedirectAttributes redirectAttributes, Exception e,
             HttpServletRequest request) {
         String errorMessage = String.format("The action is not possible. %s", e.getMessage());
@@ -49,7 +51,7 @@ public class FileDashboardControllerAdvice {
 
         String pathString = request.getParameter("path");
         redirectAttributes.addFlashAttribute("pathRequest",
-                FileManagerService.getParent(pathString).toString());
+                FileManagerUtils.getParent(pathString).toString());
 
         return "redirect:/files/error";
     }

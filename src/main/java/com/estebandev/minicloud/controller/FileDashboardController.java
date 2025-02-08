@@ -1,5 +1,6 @@
 package com.estebandev.minicloud.controller;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
@@ -22,8 +23,8 @@ import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.service.FileManagerService;
 import com.estebandev.minicloud.service.UserService;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
-import com.estebandev.minicloud.service.exception.FileNotFoundException;
 import com.estebandev.minicloud.service.utils.FileData;
+import com.estebandev.minicloud.service.utils.FileManagerUtils;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -157,7 +158,7 @@ public class FileDashboardController {
 
     @PostMapping("/action/mkdir")
     public String mkdir(
-            @RequestParam @Valid @Pattern(regexp = "^[a-zA-Z0-9_!#$^&*()]+$", message = "Illegal symbols") String name,
+            @RequestParam @Valid @Pattern(regexp = "^[a-zA-Z0-9_!#$%^&()@+.-]+$", message = "Illegal symbols") String name,
             @RequestParam(required = true, name = "path") String pathString,
             RedirectAttributes redirectAttributes)
             throws IOException, IllegalArgumentException {
@@ -173,13 +174,13 @@ public class FileDashboardController {
             throws IOException, FileNotFoundException {
 
         fileManagerService.delete(pathString);
-        redirectAttributes.addAttribute("path", FileManagerService.getParent(pathString).toString());
+        redirectAttributes.addAttribute("path", FileManagerUtils.getParent(pathString).toString());
         return "redirect:/files/action/go/dir";
     }
 
     @PostMapping("/action/rename")
     public String rename(@RequestParam(required = true, name = "path") String pathString,
-            @RequestParam(required = true) @Valid @Pattern(regexp = "^[a-zA-Z0-9_!#$%^&*()]+$", message = "Illegal symbols") String newName,
+            @RequestParam(required = true) @Valid @Pattern(regexp = "^[a-zA-Z0-9_!#$%^&()@+.-]+$", message = "Illegal symbols") String newName,
             RedirectAttributes redirectAttributes)
             throws IOException, FileNotFoundException {
 
