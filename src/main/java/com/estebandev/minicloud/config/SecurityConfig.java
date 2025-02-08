@@ -43,7 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(httz -> {
                     httz
                             .requestMatchers(
-                                    "/register/**", "/login/**", "/", "/recoveryportal/**", "/passwordrecovery/**", "/css/**", "/js/**", "/images/**")
+                                    "/register/**", "/login/**", "/", "/recoveryportal/**", "/passwordrecovery/**",
+                                    "/css/**", "/js/**", "/images/**")
                             .permitAll()
                             .requestMatchers("/admin/**").hasAuthority("ADMIN_DASHBOARD")
                             .requestMatchers("/files/**").hasAuthority("FILE_DASHBOARD")
@@ -58,6 +59,9 @@ public class SecurityConfig {
                             .clearAuthentication(true)
                             .permitAll();
                 })
+                .headers(headerConfig -> headerConfig.cacheControl(cache -> {
+                    cache.disable();
+                }))
                 .build();
     }
 

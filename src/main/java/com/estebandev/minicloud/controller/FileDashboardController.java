@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -65,8 +66,16 @@ public class FileDashboardController {
     @GetMapping("/action/go/dir")
     public String goToDir(@RequestParam(defaultValue = ".", name = "path") String pathString,
             RedirectAttributes redirectAttributes,
-            Model model)
+            Model model,
+            WebRequest webRequest)
             throws IOException, FileNotFoundException {
+
+        long eTag = fileManagerService.getLastModifiedDateInMinutes(pathString);
+
+        if (webRequest.checkNotModified(eTag)) {
+            return null;
+        }
+
         try {
             List<FileData> fileList = fileManagerService.listFiles(pathString);
             Path path = fileManagerService.getRoot().resolve(pathString).normalize();
@@ -85,6 +94,7 @@ public class FileDashboardController {
     @GetMapping("/action/go/file")
     public String goToFile(@RequestParam(name = "path", required = true) String pathString,
             Model model,
+            WebRequest webRequest,
             RedirectAttributes redirectAttributes)
             throws IOException {
 
@@ -107,6 +117,7 @@ public class FileDashboardController {
     @GetMapping("/action/read")
     public ResponseEntity<Resource> readFile(
             @RequestParam(required = true, name = "path") String pathString,
+            WebRequest webRequest,
             RedirectAttributes redirectAttributes) throws IOException {
 
         try {
@@ -151,9 +162,8 @@ public class FileDashboardController {
     }
 
     @PostMapping("/action/mkdir")
-    public String mkdir(@RequestParam 
-            @Valid
-            @Pattern(regexp = "^[a-zA-Z0-9_!#$^&*()]+$", message = "Illegal symbols") String name,
+    public String mkdir(
+            @RequestParam @Valid @Pattern(regexp = "^[a-zA-Z0-9_!#$^&*()]+$", message = "Illegal symbols") String name,
             @RequestParam(required = true, name = "path") String pathString,
             RedirectAttributes redirectAttributes)
             throws IOException, IllegalArgumentException {
@@ -175,9 +185,7 @@ public class FileDashboardController {
 
     @PostMapping("/action/rename")
     public String rename(@RequestParam(required = true, name = "path") String pathString,
-            @RequestParam(required = true) 
-            @Valid
-            @Pattern(regexp = "^[a-zA-Z0-9_!#$%^&*()]+$", message = "Illegal symbols") String newName,
+            @RequestParam(required = true) @Valid @Pattern(regexp = "^[a-zA-Z0-9_!#$%^&*()]+$", message = "Illegal symbols") String newName,
             RedirectAttributes redirectAttributes)
             throws IOException, FileNotFoundException {
 

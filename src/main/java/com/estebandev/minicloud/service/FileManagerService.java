@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,6 +193,12 @@ public class FileManagerService {
 
     public Path getRoot() {
         return Path.of(pathString);
+    }
+
+    public long getLastModifiedDateInMinutes (String pathString) throws IOException {
+        Path filePath = getRoot().resolve(pathString).normalize();
+        FileTime fTime = Files.getLastModifiedTime(filePath);
+        return fTime.to(TimeUnit.MINUTES);
     }
 
     public boolean isExist(String path) {
