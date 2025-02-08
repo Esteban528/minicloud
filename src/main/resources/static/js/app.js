@@ -47,3 +47,9 @@ function passwordInputButton() {
   })
 }
 
+function togglePopup(idModal) {
+  const popup = document.getElementById(idModal);
+  //popup.addEventListener("click", () => popup.classList.toggle("hidden"))
+  popup.classList.toggle("hidden");
+}
+

@@ -1,6 +1,8 @@
 package com.estebandev.minicloud.service.exception;
 
-public class FileIsNotDirectoryException extends FileManagerException {
+import java.io.IOException;
+
+public class FileIsNotDirectoryException extends IOException {
     public FileIsNotDirectoryException(String message) {
         super(message);
     }

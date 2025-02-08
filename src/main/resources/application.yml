@@ -1,7 +1,6 @@
 spring:
   application:
     name: minicloud
-
   devtools:
     restart:
       enabled: true
@@ -22,14 +21,21 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/miniclouddb?createDatabaseIfNotExist=true
-    username: root 
+    username: root
     password: este5ban9
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
-    database: mysql 
+    database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+  servlet:
+    multipart:
+      max-file-size: 10GB
+      max-request-size: 10GB
+      resolve-lazily: true
+
 var:
   title: ${spring.application.name}
   filepath: ./files
@@ -42,5 +48,5 @@ var:
 
 logging:
   level:
-    org.springframework.web: DEBUG 
+    org.springframework.web: DEBUG
     org.hibernate: WARN
