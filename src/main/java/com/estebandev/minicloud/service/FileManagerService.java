@@ -23,9 +23,11 @@ import com.estebandev.minicloud.service.utils.FileData;
 import com.estebandev.minicloud.service.utils.FileManagerUtils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Service
 @RequiredArgsConstructor
+@Setter
 public class FileManagerService {
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserService userService;
