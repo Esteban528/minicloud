@@ -9,40 +9,208 @@
   <body>
     <aside class="file_asidebar" th:fragment="asidebar">
       <div class="file_iconUser">
-        <img
-          th:src="@{/images/userIcon.jpg}"
-          alt=""
-        />
+        <img th:src="@{/images/userIcon.jpg}" alt="" />
         <p th:text="${nickname}"></p>
       </div>
-
       <div class="file_asidebar_section">
-        <a href="">
-          <i class="bi bi-folder2-open"></i>
-          <p>My directory</p>
-        </a>
+        <div class="" th:if="${userDirectoryExists}">
+          <a th:href="@{/files/action/go/mydir}">
+            <i class="bi bi-folder2-open"></i>
+            <p>My directory</p>
+          </a>
+        </div>
+        <div class="" th:unless="${userDirectoryExists}">
+          <a th:href="@{/files/action/createIfNotExistPersonalDirectory}">
+            <i class="bi bi-folder2-open"></i>
+            <p>Create personal directory</p>
+          </a>
+        </div>
       </div>
       <div class="file_separator"></div>
       <div class="file_asidebar_buttons">
         <div class="file_line_section">
-          <div class="file_asidebar_section">
-            <a href="">
+          <!-- Validación para fileData -->
+          <div
+            th:if="${fileData != null and fileData.directory and not #strings.isEmpty(path)}"
+            class="file_asidebar_section"
+          >
+            <div id="popup" class="container container-float hidden popup">
+              <div class="target">
+                <h2>Create folder</h2>
+                <form
+                  th:if="${param.path != null}"
+                  method="post"
+                  th:action="@{/files/action/mkdir}"
+                  class="form"
+                >
+                  <input type="hidden" name="path" th:value="${param.path}" />
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Directory name"
+                    pattern="\S+"
+                    title="Spaces is not allowed"
+                  />
+                  <div class="container_buttons">
+                    <button type="submit" class="button cyan">Create</button>
+                    <button
+                      type="button"
+                      class="button"
+                      onclick="togglePopup('popup')"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <button
+              class="button-none"
+              type="button"
+              onclick="togglePopup('popup')"
+            >
               <i class="bi bi-folder-plus"></i>
               <p>Create folder</p>
-            </a>
+            </button>
           </div>
-          <div class="file_asidebar_section">
-            <a href="">
+          <!-- Validación para fileData -->
+          <div
+            th:if="${fileData != null and fileData.directory and not #strings.isEmpty(path)}"
+            class="file_asidebar_section"
+          >
+            <div
+              id="uploadmodal"
+              class="container container-float hidden popup"
+            >
+              <div class="target">
+                <h2>Upload file</h2>
+                <form
+                  th:if="${not #strings.isEmpty(param.path)}"
+                  method="POST"
+                  th:action="@{/files/action/upload}"
+                  enctype="multipart/form-data"
+                  class="form"
+                >
+                  <input type="hidden" name="path" th:value="${param.path}" />
+                  <input type="file" id="file" name="file" required />
+                  <div class="container_buttons">
+                    <button type="submit" class="button cyan">
+                      Upload file
+                    </button>
+                    <button
+                      type="button"
+                      class="button"
+                      onclick="togglePopup('uploadmodal')"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <button
+              class="button-none"
+              type="button"
+              onclick="togglePopup('uploadmodal')"
+            >
               <i class="bi bi-cloud-upload"></i>
               <p>Upload file</p>
-            </a>
+            </button>
+          </div>
+          <!-- Validación para fileData -->
+          <div
+            th:if="${fileData != null and fileData.editable}"
+            class="file_asidebar_section"
+          >
+            <div
+              id="renamemodal"
+              class="container container-float hidden popup"
+            >
+              <div class="target">
+                <h2>Rename</h2>
+                <form
+                  th:if="${not #strings.isEmpty(param.path)}"
+                  method="POST"
+                  th:action="@{/files/action/rename}"
+                  class="form"
+                >
+                  <input type="hidden" name="path" th:value="${param.path}" />
+                  <input
+                    type="text"
+                    id="newName"
+                    name="newName"
+                    required
+                    th:value="${fileData.fileName}"
+                  />
+                  <div class="container_buttons">
+                    <button type="submit" class="button cyan">Rename</button>
+                    <button
+                      type="button"
+                      class="button"
+                      onclick="togglePopup('renamemodal')"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <button
+              class="button-none"
+              type="button"
+              onclick="togglePopup('renamemodal')"
+            >
+              <i class="bi bi-pencil-fill"></i>
+              <p
+                th:text="'Rename ' + ${!fileData.directory ? 'file' : 'folder'}"
+              ></p>
+            </button>
           </div>
 
-          <div class="file_asidebar_section">
-            <a href="">
-              <i class="bi bi-lock"></i>
-              <p>Manage perms</p>
-            </a>
+          <!-- Validación para fileData -->
+          <div
+            th:if="${fileData != null and fileData.editable}"
+            class="file_asidebar_section"
+          >
+            <div
+              id="deletemodal"
+              class="container container-float hidden popup"
+            >
+              <div class="target">
+                <h2>Deleting...</h2>
+                <p>
+                  Are you sure you want to delete
+                  <span th:text="${param.path}"></span>
+                </p>
+                <form
+                  method="POST"
+                  th:action="@{/files/action/delete}"
+                  class="form"
+                >
+                  <input type="hidden" name="path" th:value="${param.path}" />
+                  <div class="container_buttons">
+                    <button type="submit" class="button cyan">Delete</button>
+                    <button
+                      type="button"
+                      class="button"
+                      onclick="togglePopup('deletemodal')"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <button
+              class="button-none"
+              type="button"
+              onclick="togglePopup('deletemodal')"
+            >
+              <i class="bi bi-trash3"></i>
+              <p
+                th:text="'Delete ' + ${!fileData.directory ? 'file' : 'folder'}"
+              ></p>
+            </button>
           </div>
         </div>
       </div>

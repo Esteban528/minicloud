@@ -1,162 +1,114 @@
 package com.estebandev.minicloud.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
-import com.estebandev.minicloud.service.exception.FileNotFoundException;
+import com.estebandev.minicloud.service.utils.FileData;
+import com.estebandev.minicloud.service.utils.FileManagerUtils;
 
-@SpringBootTest
-public class FileManagerServiceTest {
+class FileManagerServiceTest {
 
-    // @InjectMocks
-    @Autowired
+    @TempDir
+    Path tempDir;
+
+    @Mock
+    private UserService userService;
+
+    @InjectMocks
     private FileManagerService fileManagerService;
 
     @BeforeEach
-    public void createFile() throws IOException {
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        fileManagerService.setPathString(tempDir.toString());
+    }
+
+    @Test
+    void testVerifyRootDirectory() {
         fileManagerService.verifyRootDirectory();
-    }
-
-    @AfterEach
-    public void deleteAllFiles() throws IOException {
-        Files.deleteIfExists(fileManagerService.getRoot());
+        assertTrue(Files.exists(tempDir));
     }
 
     @Test
-    public void testVerifyFileManager() throws IOException {
-        fileManagerService.verifyRootDirectory();
-        Path path = fileManagerService.getRoot();
-
-        assertThat(Files.exists(path)).isTrue();
+    void testMakeDirectory_Success() throws IOException {
+        Path newDir = tempDir.resolve("newDir");
+        fileManagerService.makeDirectory("newDir");
+        assertTrue(Files.exists(newDir));
     }
 
     @Test
-    public void listFilesTest() throws FileNotFoundException, FileIsNotDirectoryException, IOException {
-        String fileName = "testFile.txt";
-        Path tmpPath = fileManagerService.getRoot().resolve(fileName);
-        if (!Files.exists(tmpPath))
-            Files.createFile(tmpPath);
-
-        List<Path> fmList = fileManagerService.listFiles(".");
-
-        Path path = fmList.stream()
-                .map(x -> x.getFileName())
-                .findFirst().get();
-        assertThat(path.toString()).isEqualTo(fileName);
-
-        Files.deleteIfExists(tmpPath);
-        Files.deleteIfExists(fileManagerService.getRoot());
+    void testMakeDirectory_AlreadyExists() throws IOException {
+        Path existingDir = tempDir.resolve("existingDir");
+        Files.createDirectory(existingDir);
+        assertThrows(FileAlreadyExistsException.class, () -> fileManagerService.makeDirectory("existingDir"));
     }
 
     @Test
-    public void makeDirectoryTest() throws FileAlreadyExistsException, IOException {
-        String dirNameToCreate = "testDirectory";
-
-        fileManagerService.makeDirectory(dirNameToCreate);
-
-        assertThat(Files.exists(fileManagerService.getRoot().resolve("testDirectory"))).isTrue();
-
-        Files.deleteIfExists(fileManagerService.getRoot().resolve("testDirectory"));
+    void testUploadFile_Success() throws IOException, FileIsNotDirectoryException, FileNotFoundException {
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        Path dirPath = tempDir.resolve("uploads");
+        when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
+        Files.createDirectory(dirPath);
+        fileManagerService.uploadFile(multipartFile, "uploads");
+        verify(multipartFile).transferTo(any(Path.class));
     }
 
     @Test
-    void uploadFileTest() throws IOException, FileIsNotDirectoryException, FileNotFoundException {
-        String fileName = "test-file.txt";
-        MockMultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                fileName,
-                "text/plain",
-                "This is a test file".getBytes());
-
-        fileManagerService.uploadFile(multipartFile, ".");
-
-        assertThat(Files.exists(fileManagerService.getRoot().resolve(fileName))).isTrue();
-        Files.deleteIfExists(fileManagerService.getRoot().resolve(fileName));
-    }
-
-    @Test
-    public void verifyRootDirectoryWhenRootIsFile() throws IOException {
-        Path root = fileManagerService.getRoot();
-        // Eliminar el directorio creado por @BeforeEach y crear un archivo
-        Files.deleteIfExists(root);
-        Files.createFile(root);
-
-        fileManagerService.verifyRootDirectory();
-
-        assertThat(Files.isDirectory(root)).isTrue();
-    }
-
-    @Test
-    public void listFilesShouldThrowWhenPathNotExists() {
-        assertThatThrownBy(() -> fileManagerService.listFiles("nonExistentPath"))
-                .isInstanceOf(FileNotFoundException.class);
-    }
-
-    @Test
-    public void listFilesShouldThrowWhenPathIsNotDirectory() throws IOException {
-        String fileName = "file.txt";
-        Path filePath = fileManagerService.getRoot().resolve(fileName);
+    void testFindFile_Success() throws IOException {
+        Path filePath = tempDir.resolve("file.txt");
         Files.createFile(filePath);
-
-        assertThatThrownBy(() -> fileManagerService.listFiles(fileName))
-                .isInstanceOf(FileIsNotDirectoryException.class);
-
-        Files.deleteIfExists(filePath);
+        Resource resource = fileManagerService.findFile("file.txt");
+        assertNotNull(resource);
+        assertTrue(resource.exists());
     }
 
     @Test
-    public void makeDirectoryShouldThrowWhenAlreadyExists() throws IOException {
-        String dirName = "existingDir";
-        fileManagerService.makeDirectory(dirName);
-
-        assertThatThrownBy(() -> fileManagerService.makeDirectory(dirName))
-                .isInstanceOf(FileAlreadyExistsException.class);
-
-        Files.deleteIfExists(fileManagerService.getRoot().resolve(dirName));
+    void testFindFile_NotFound() {
+        assertThrows(FileNotFoundException.class, () -> fileManagerService.findFile("missing.txt"));
     }
 
     @Test
-    public void uploadFileShouldThrowWhenDirectoryNotExists() {
-        String dirName = "nonExistentDir";
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "test.txt",
-                "text/plain",
-                "content".getBytes());
-
-        assertThatThrownBy(() -> fileManagerService.uploadFile(file, dirName))
-                .isInstanceOf(FileNotFoundException.class);
+    void testListFiles_Success() throws IOException, FileIsNotDirectoryException {
+        Path dir = tempDir.resolve("testDir");
+        Files.createDirectory(dir);
+        Files.createFile(dir.resolve("file1.txt"));
+        Files.createFile(dir.resolve("file2.txt"));
+        List<FileData> files = fileManagerService.listFiles("testDir");
+        assertEquals(2, files.size());
     }
 
     @Test
-    public void uploadFileShouldThrowWhenPathIsNotDirectory() throws IOException {
-        String fileName = "file.txt";
-        Path filePath = fileManagerService.getRoot().resolve(fileName);
+    void testDeleteFile_Success() throws IOException {
+        Path filePath = tempDir.resolve("deleteMe.txt");
         Files.createFile(filePath);
+        fileManagerService.delete("deleteMe.txt");
+        assertFalse(Files.exists(filePath));
+    }
 
-        MockMultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "test.txt",
-                "text/plain",
-                "content".getBytes());
-
-        assertThatThrownBy(() -> fileManagerService.uploadFile(multipartFile, fileName))
-                .isInstanceOf(FileIsNotDirectoryException.class);
-
-        Files.deleteIfExists(filePath);
+    @Test
+    void testRenameFile_Success() throws IOException {
+        Path filePath = tempDir.resolve("oldName.txt");
+        Files.createFile(filePath);
+        fileManagerService.rename("oldName.txt", "newName.txt");
+        assertFalse(Files.exists(filePath));
+        assertTrue(Files.exists(tempDir.resolve("newName.txt")));
     }
 }

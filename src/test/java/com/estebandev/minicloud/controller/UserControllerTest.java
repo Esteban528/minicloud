@@ -31,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.estebandev.minicloud.controller.dto.RegisterUserDTO;
 import com.estebandev.minicloud.service.CodeAuthService;
+import com.estebandev.minicloud.service.FileManagerService;
 import com.estebandev.minicloud.service.UserService;
 import com.estebandev.minicloud.service.exception.EmailServiceException;
 import com.estebandev.minicloud.service.exception.ManyAttempsException;
@@ -45,6 +46,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private FileManagerService fileManagerService;
 
     @MockitoBean
     private CodeAuthService codeAuthService;

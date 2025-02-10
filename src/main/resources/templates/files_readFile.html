@@ -1,0 +1,96 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}"> </head>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"
+  />
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <aside th:insert="~{files_aside :: asidebar}"></aside>
+    <main class="file_container">
+      <div class="mtop">
+        <a
+          th:href="@{/files/action/go/dir?path={path}(path=${#strings.replace(backPath, ' ', '%20')})}"
+          class="button mtop"
+        >
+          <i class="bi bi-arrow-return-left"></i> Back</a
+        >
+      </div>
+      <div class="file_main_route">
+        <i class="bi bi-folder-fill"></i>
+        <p id="filePath" th:text="${filePath}"></p>
+      </div>
+      <div class="rfile_container mtop">
+        <div class="rfile_data">
+          <div class="container" style="gap: 1rem">
+            <p class="bold" th:text="${fileData.mediaType}"></p>
+            <p th:text="|Size: ${fileData.size} mb|"></p>
+          </div>
+          <p th:text="${fileData.fileName}"></p>
+          <div>
+            <a
+              th:href="@{/files/action/download?path={path}(path=${filePath})}"
+              class="button-abstract"
+              >Download</a
+            >
+            <a
+              th:href="@{/files/action/read?path={path}(path=${filePath})}"
+              class="button-abstract"
+              >Raw</a
+            >
+            <button type="button" id="copyButton" class="button-abstract">
+              Copy
+            </button>
+          </div>
+        </div>
+        <div th:if="${fileData.size < 15}" class="rfile_content_container">
+          <div
+            class="rfile_multimedia_container"
+            th:if="${#strings.contains(fileData.mediaType, 'image')}"
+          >
+            <img
+              class="rfile_multimedia"
+              th:src="@{/files/action/read?path={path}(path=${path})}"
+              alt="Image preview"
+            />
+          </div>
+          <div
+            th:if="${#strings.contains(fileData.mediaType, 'text')}"
+            class="rfile_content"
+            id="text-container"
+          ></div>
+
+          <div
+            th:if="${#strings.contains(fileData.mediaType, 'pdf')}"
+            id="pdf-container"
+          >
+            <div
+              th:unless="${#strings.contains(fileData.mediaType, 'text')}"
+              style="margin: 2rem; padding: 2rem"
+            ></div>
+          </div>
+
+          <div th:if="${#strings.contains(fileData.mediaType, 'video')}" class="rfile_multimedia_container">
+            <video
+              class="rfile_multimedia"
+              controls
+              th:src="@{/files/action/read?path={path}(path=${path})}"
+            ></video>
+          </div>
+        </div>
+
+        <div
+          th:unless="${fileData.size < 15}"
+          class="container container-square flex-col bold"
+        >
+          <img th:src="@{/images/heavy.png}" alt="sad icon :(" />
+          <p>Content is too heavy to display.</p>
+        </div>
+      </div>
+    </main>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js"></script>
+  <script th:src="@{/js/app.js}"></script>
+  <script type="module" th:src="@{/js/file_loader.js}"></script>
+</html>

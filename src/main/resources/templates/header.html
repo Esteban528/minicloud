@@ -21,7 +21,7 @@
             alt="Simply cloud brand logo"
           />
         </picture>
-        <h1 th:text="${title}"></h1>
+        <h1 class="brand-title" th:text="${title}"></h1>
       </a>
       <div th:if="${auth}">
           <a class="button" th:href="@{/logout}">Logout</a>

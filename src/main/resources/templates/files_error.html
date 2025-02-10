@@ -1,0 +1,31 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}"></head>
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <div class="main-container">
+      <aside th:insert="~{files_aside :: asidebar}"></aside>
+      <main class="file_container mtop">
+        <div class="target">
+          <h1><i style="color: red" class="bi bi-emoji-frown"></i> Error</h1>
+          <p th:if="${error != null}" th:text="${error}"></p>
+          <p th:unless="${error != null}">
+            An error has ocurred, try again later.
+          </p>
+
+          <a th:if="${#strings.isEmpty(pathRequest)}" th:href="@{/files}"
+            >Go to file dashboard</a
+          >
+          <a
+            th:if="${not #strings.isEmpty(pathRequest)}"
+            th:href="@{/files/action/go/dir(path=${pathRequest})}"
+            >Ok, go back</a
+          >
+          <br />
+        </div>
+      </main>
+      <aside></aside>
+    </div>
+  </body>
+  <script th:src="@{/js/app.js}"></script>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}"></head>
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+      <aside th:insert="~{files_aside :: asidebar}"></aside>
+      <main class="file_container">
+        <div class="mtop">
+          <a
+            th:if="${fileData != null and fileData.directory and not #strings.isEmpty(path)}"
+            th:href="@{/files/action/go/dir?path={path}(path=${#strings.replace(backPath, ' ', '%20')})}"
+            class="button mtop"
+          >
+            <i class="bi bi-arrow-return-left"></i> Back</a
+          >
+        </div>
+        <div  
+        
+        class="file_main_route">
+          <i class="bi bi-folder-fill"></i>
+        <p th:text="${#strings.isEmpty(path)} ? 'home' : ${path}"></p>
+        </div>
+        <div class="file_folder_container">
+          <div class="file_folder target" th:each="fileData :${fileList}">
+            <div class="file_folder_icon">
+              <img th:if="${fileData.directory}" th:src="@{/images/foldericon.png}" alt="Directory Icon" />
+              <img th:unless="${fileData.directory}" th:src="@{/images/fileicon.png}" alt="File Icon" />
+            </div>
+            <div class="file_folder_content">
+              <a
+                class="file_folder_title"
+                th:text="${fileData.fileName.length() > 14 ? fileData.fileName.substring(0,14) + '...' : fileData.fileName}"
+                th:href="@{/files/action/go/dir?path={filename}(filename=${#strings.replace(fileData.path, ' ', '%20')})}"
+              ></a>
+
+              <a
+                th:unless="${fileData.directory}"
+                class="dot-button"
+                th:href="@{/files/action/download?path={filename}(filename=${#strings.replace(fileData.path, ' ', '%20')})}"
+              >
+                <div class="dot">
+                  <i class="bi bi-circle-fill"></i>
+                </div>
+                Download
+              </a>
+            </div>
+          </div>
+          <!--finish folder-->
+        </div>
+      </main>
+    </div>
+  </body>
+  <script th:src="@{/js/app.js}"></script>
+</html>
