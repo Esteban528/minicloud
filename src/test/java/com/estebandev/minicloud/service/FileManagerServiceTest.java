@@ -1,7 +1,16 @@
 package com.estebandev.minicloud.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,12 +26,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.Resource;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import com.estebandev.minicloud.service.utils.FileData;
-import com.estebandev.minicloud.service.utils.FileManagerUtils;
 
 class FileManagerServiceTest {
 
@@ -31,6 +39,9 @@ class FileManagerServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private FileMetadataService fileMetadataService;
 
     @InjectMocks
     private FileManagerService fileManagerService;
@@ -50,8 +61,11 @@ class FileManagerServiceTest {
     @Test
     void testMakeDirectory_Success() throws IOException {
         Path newDir = tempDir.resolve("newDir");
+        User user = User.builder().build(); 
+        when(userService.getUserFromAuth()).thenReturn(user);
         fileManagerService.makeDirectory("newDir");
         assertTrue(Files.exists(newDir));
+        verify(fileMetadataService).make(newDir, user);
     }
 
     @Test
@@ -66,8 +80,12 @@ class FileManagerServiceTest {
         MultipartFile multipartFile = mock(MultipartFile.class);
         Path dirPath = tempDir.resolve("uploads");
         when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
+        User user = User.builder().build(); 
+        when(userService.getUserFromAuth()).thenReturn(user);
+
         Files.createDirectory(dirPath);
         fileManagerService.uploadFile(multipartFile, "uploads");
+
         verify(multipartFile).transferTo(any(Path.class));
     }
 
@@ -101,6 +119,15 @@ class FileManagerServiceTest {
         Files.createFile(filePath);
         fileManagerService.delete("deleteMe.txt");
         assertFalse(Files.exists(filePath));
+    }
+
+    @Test
+    void testDeleteDirectory_Success() throws IOException {
+        Path filePath = tempDir.resolve("deleteMe");
+        Files.createDirectory(filePath);
+        fileManagerService.delete("deleteMe");
+        assertFalse(Files.exists(filePath));
+        verify(fileMetadataService).deleteAll(filePath);
     }
 
     @Test

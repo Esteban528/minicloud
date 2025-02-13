@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
@@ -32,6 +33,7 @@ public class FileManagerService {
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserService userService;
     private final ReentrantReadWriteLock fileLock = new ReentrantReadWriteLock();
+    private final FileMetadataService fileMetadataService;
 
     @Value("${var.filepath}")
     private String pathString;
@@ -84,6 +86,7 @@ public class FileManagerService {
         }
     }
 
+    @Transactional
     private void makeDirectory(Path dirPath)
             throws FileAlreadyExistsException, IOException {
         fileLock.writeLock().lock();
@@ -94,6 +97,7 @@ public class FileManagerService {
                 throw new FileAlreadyExistsException("The already exist");
 
             Files.createDirectory(dirPath);
+            fileMetadataService.make(dirPath, userService.getUserFromAuth());
         } finally {
             fileLock.writeLock().unlock();
         }
@@ -101,16 +105,17 @@ public class FileManagerService {
 
     public void makeDirectory(String dirPathString)
             throws FileAlreadyExistsException, IOException {
-        Path dirPath = getRoot().resolve(dirPathString);
+        Path dirPath = getRoot().resolve(dirPathString).normalize();
 
         makeDirectory(dirPath);
     }
 
     public void makeDirectory(String dirPathString, String dirName)
             throws FileAlreadyExistsException, IOException {
-        makeDirectory(getRoot().resolve(dirPathString).resolve(FileManagerUtils.formatName(dirName)));
+        makeDirectory(getRoot().resolve(dirPathString).normalize().resolve(FileManagerUtils.formatName(dirName)));
     }
 
+    @Transactional
     public void uploadFile(MultipartFile multipartFile, String dirPathString)
             throws IOException, FileIsNotDirectoryException, FileNotFoundException {
         try {
@@ -145,6 +150,7 @@ public class FileManagerService {
         }
     }
 
+    @Transactional
     public Path rename(String pathString, String newName) throws IOException {
         try {
             if (!fileLock.writeLock().tryLock(5, TimeUnit.SECONDS)) {
@@ -222,6 +228,8 @@ public class FileManagerService {
                     throw new IOException("You do not have perms");
                 if (Files.isDirectory(filePath) && !listFiles(pathString).isEmpty())
                     throw new IOException("The directory is not empty");
+                if(Files.isDirectory(filePath))
+                    fileMetadataService.deleteAll(filePath);
 
                 Files.delete(filePath);
             } finally {
@@ -234,7 +242,7 @@ public class FileManagerService {
     }
 
     public Path getRoot() {
-        return Path.of(pathString);
+        return Path.of(pathString).normalize();
     }
 
     public long getLastModifiedDateInMinutes(String pathString) throws IOException {
