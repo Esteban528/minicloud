@@ -18,6 +18,7 @@ public class MediatypeParser {
             Map.entry("py", "text/x-python"),
             Map.entry("rb", "text/x-ruby"),
             Map.entry("php", "text/x-php"),
+            Map.entry("nix", "text/nix"),
             Map.entry("c", "text/x-csrc"),
             Map.entry("cpp", "text/x-c++src"),
             Map.entry("cs", "text/x-csharp"),
