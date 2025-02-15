@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.estebandev.minicloud.entity.User;
+import com.estebandev.minicloud.entity.UserMetadata;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -135,5 +137,33 @@ public class UserRepositoryTest {
 
         // Assert
         assertThat(userCount).isEqualTo(2);
+    }
+
+    @Test
+    void testUserMetadata() {
+        // Arrange
+        User user = User.builder()
+                .nickname("estebandev.test")
+                .email("test@minicloud.com")
+                .password("hola")
+                .UserMetadata(new ArrayList<>())
+                .build();
+        UserMetadata userMetadata = UserMetadata.builder()
+                .user(user)
+                .key("test")
+                .value("true")
+                .build();
+        user.getUserMetadata().add(userMetadata);
+
+        // Act
+        User result = userRepository.save(user);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getNickname()).isEqualTo(user.getNickname());
+        assertThat(result.getEmail()).isEqualTo(user.getEmail());
+        assertThat(result.getPassword()).isEqualTo(user.getPassword());
+        assertThat(result.getUserMetadata().get(0)).isEqualTo(userMetadata);
     }
 }

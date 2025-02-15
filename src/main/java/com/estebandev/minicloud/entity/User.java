@@ -55,6 +55,9 @@ public class User implements UserDetails, CredentialsContainer {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Scopes> scopes;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<UserMetadata> UserMetadata;
+
     @Override
     public void eraseCredentials() {
         this.password = null;
