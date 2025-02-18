@@ -12,6 +12,7 @@
   --sidebarWidth: 16%;
   --sidebarWidthRestant: 84%;
   --border_radius: .8rem;
+  --background: #F5F5F5;
 }
 
 /* Base styles for HTML */
@@ -43,6 +44,7 @@ h3 {
 /* Body default styles */
 body {
   font-size: 1.4rem;
+  background-color: var(--background);
 }
 
 /* Header section */
