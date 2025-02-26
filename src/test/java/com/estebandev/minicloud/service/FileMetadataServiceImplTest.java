@@ -10,12 +10,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
 import com.estebandev.minicloud.entity.FileMetadata;
 import com.estebandev.minicloud.entity.User;
+import com.estebandev.minicloud.entity.UserMetadata;
 import com.estebandev.minicloud.repository.FileMetadataRepository;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,13 +32,16 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class FileMetadataServiceTest {
+public class FileMetadataServiceImplTest {
 
     @TempDir
     Path tempDir;
 
     @Mock
     private FileMetadataRepository fileMetadataRepository;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private FileMetadataServiceImpl fileMetadataService;
@@ -112,10 +117,10 @@ public class FileMetadataServiceTest {
     void getUuidFromDir_ShouldReturnValidUuid_WhenMetadataExists() throws Exception {
         // Given
         fileMetadataService.make(testDirectory, testUser);
-        
+
         // When
         UUID uuid = fileMetadataService.getUuidFromDir(testDirectory);
-        
+
         // Then
         assertThat(uuid).isNotNull();
         assertThat(uuid.toString()).isNotEmpty();
@@ -138,8 +143,7 @@ public class FileMetadataServiceTest {
         verify(fileMetadataRepository).save(metadataCaptor.capture());
         FileMetadata savedMetadata = metadataCaptor.getValue();
         assertThat(savedMetadata.getUuid()).isEqualTo(
-                fileMetadataService.getUuidFromDir(testDirectory).toString()
-        );
+                fileMetadataService.getUuidFromDir(testDirectory).toString());
     }
 
     @Test
@@ -160,5 +164,11 @@ public class FileMetadataServiceTest {
             props.loadFromXML(is);
         }
         assertThat(props.getProperty("uuid")).isEqualTo(testUuid);
+    }
+
+    String generateMetadata(Path path) throws IOException {
+        String uuid = UUID.randomUUID().toString();
+        fileMetadataService.generateMetadataFile(path, uuid);
+        return uuid;
     }
 }

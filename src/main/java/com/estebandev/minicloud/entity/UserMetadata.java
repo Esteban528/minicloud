@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,8 +21,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "user_metadata", uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "metadata_key" }))
 public class UserMetadata {
-    
+
     @Id
     @SequenceGenerator(name = "umetadata_secuence", sequenceName = "umetadata_secuence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

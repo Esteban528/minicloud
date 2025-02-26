@@ -3,6 +3,7 @@ package com.estebandev.minicloud.service;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.estebandev.minicloud.entity.FileMetadata;
@@ -13,6 +14,10 @@ public interface FileMetadataService {
     List<FileMetadata> findMetadata(String uuid);
 
     List<FileMetadata> findMetadata(Path path) throws IOException;
+
+    FileMetadata findMetadataFromKey(String uuid, String key) throws NoSuchElementException;
+
+    FileMetadata findMetadataFromKey(Path path, String key) throws IOException, NoSuchElementException;
 
     void make(Path dirPath, User owner) throws IOException, FileIsNotDirectoryException;
     
