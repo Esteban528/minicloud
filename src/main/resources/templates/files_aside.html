@@ -212,6 +212,22 @@
               ></p>
             </button>
           </div>
+
+          <div th:if="${ownsDir != null and ownsDir and onboardMaccess==null}" class="file_asidebar_section">
+            <div
+              id="accessmanagermodal"
+              class="container container-float popup"
+              th:classappend="${accessError != null  ? '' : 'hidden'}"
+            ></div>
+            <a
+              class="button-none"
+              type="button"
+              th:href="@{/files/action/manage/access?path={path}(path=${param.path})}"
+            >
+              <i class="bi bi-shield-lock"></i>
+              <p>Manage access</p>
+            </a>
+          </div>
         </div>
       </div>
     </aside>

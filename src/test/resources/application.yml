@@ -6,7 +6,7 @@ spring:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
     username: sa
-    password: ''
+    password: ""
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
 
@@ -26,5 +26,8 @@ var:
 
 logging:
   level:
-    org.springframework.web: DEBUG
-    org.hibernate: WARN
+    root: DEBUG
+    org.springframework: DEBUG
+    org.springframework.web: TRACE
+    org.hibernate.SQL: DEBUG
+    org.springframework.security: TRACE

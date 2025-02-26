@@ -146,7 +146,7 @@ public class UserRepositoryTest {
                 .nickname("estebandev.test")
                 .email("test@minicloud.com")
                 .password("hola")
-                .UserMetadata(new ArrayList<>())
+                .userMetadata(new ArrayList<>())
                 .build();
         UserMetadata userMetadata = UserMetadata.builder()
                 .user(user)

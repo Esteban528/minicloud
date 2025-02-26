@@ -4,7 +4,7 @@
   <body>
     <div th:insert="~{header :: headerFragment}"></div>
     <div class="main-container">
-      <aside th:insert="~{files_aside :: asidebar}"></aside>
+      <aside th:if="${accessToDashboard == true}" th:insert="~{files_aside :: asidebar}"></aside>
       <main class="file_container mtop">
         <div class="target">
           <h1><i style="color: red" class="bi bi-emoji-frown"></i> Error</h1>

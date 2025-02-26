@@ -1,6 +1,7 @@
 package com.estebandev.minicloud.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -22,4 +23,6 @@ public interface FileMetadataRepository extends JpaRepository<FileMetadata, Long
     @Transactional
     @Query("DELETE FROM FileMetadata fm WHERE fm.uuid = :uuid")
     int deleteByUuid(@Param("uuid") String uuid);
+
+    Optional<FileMetadata> findByUuidAndKey(String uuid, String key);
 }

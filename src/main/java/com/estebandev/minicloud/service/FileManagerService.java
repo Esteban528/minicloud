@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -15,10 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.estebandev.minicloud.entity.FileMetadata;
+import com.estebandev.minicloud.entity.User;
+import com.estebandev.minicloud.entity.UserMetadata;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import com.estebandev.minicloud.service.utils.FileData;
 import com.estebandev.minicloud.service.utils.FileManagerUtils;
@@ -56,6 +63,7 @@ public class FileManagerService {
         }
     }
 
+    // @PreAuthorize("@customFilesAuthenticationManager.check(#root)")
     public List<FileData> listFiles(String path)
             throws FileNotFoundException, FileIsNotDirectoryException, IOException {
         fileLock.readLock().lock();
@@ -73,6 +81,7 @@ public class FileManagerService {
                 throw new FileIsNotDirectoryException("The file is not directory");
 
             return Files.list(dir)
+                    .filter(filePath -> !filePath.getFileName().toString().startsWith(".dir"))
                     .map(filePath -> {
                         return FileData.builder()
                                 .fileName(filePath.getFileName().toString())
@@ -97,7 +106,9 @@ public class FileManagerService {
                 throw new FileAlreadyExistsException("The already exist");
 
             Files.createDirectory(dirPath);
+
             fileMetadataService.make(dirPath, userService.getUserFromAuth());
+            savePathMetadata(dirPath);
         } finally {
             fileLock.writeLock().unlock();
         }
@@ -115,8 +126,7 @@ public class FileManagerService {
         makeDirectory(getRoot().resolve(dirPathString).normalize().resolve(FileManagerUtils.formatName(dirName)));
     }
 
-    @Transactional
-    public void uploadFile(MultipartFile multipartFile, String dirPathString)
+    public void uploadFile(String dirPathString, MultipartFile multipartFile)
             throws IOException, FileIsNotDirectoryException, FileNotFoundException {
         try {
             if (!fileLock.writeLock().tryLock(5, TimeUnit.SECONDS)) {
@@ -158,11 +168,12 @@ public class FileManagerService {
             }
 
             try {
-
                 Path filePath = getRoot().resolve(pathString);
                 Path newFilePath = filePath.getParent().resolve(FileManagerUtils.formatName(newName));
 
                 Files.move(filePath, newFilePath);
+
+                savePathMetadata(newFilePath);
                 return getRoot().relativize(newFilePath);
             } finally {
                 fileLock.writeLock().unlock();
@@ -185,6 +196,8 @@ public class FileManagerService {
 
             if (Files.isDirectory(filePath))
                 throw new IOException("The file is a directory");
+            if (filePath.getFileName().toString().contains(".dirdata"))
+                throw new IOException("The file isn't accesible");
 
             FileManagerUtils.validateFile(filePath);
 
@@ -228,7 +241,7 @@ public class FileManagerService {
                     throw new IOException("You do not have perms");
                 if (Files.isDirectory(filePath) && !listFiles(pathString).isEmpty())
                     throw new IOException("The directory is not empty");
-                if(Files.isDirectory(filePath))
+                if (Files.isDirectory(filePath))
                     fileMetadataService.deleteAll(filePath);
 
                 Files.delete(filePath);
@@ -263,4 +276,37 @@ public class FileManagerService {
         return FileManagerUtils.getMimeType(getRoot().resolve(filePathString));
     }
 
+    public void savePathMetadata(Path dirPath) throws IOException {
+        if (!Files.isDirectory(dirPath))
+            return;
+
+        FileMetadata metadata;
+        try {
+            metadata = fileMetadataService.findMetadataFromKey(dirPath, "path");
+            metadata.setValue(getRoot().relativize(dirPath).toString());
+            uploadPathChild(dirPath);
+        } catch (NoSuchElementException e) {
+            metadata = FileMetadata.builder()
+                    .key("path")
+                    .value(getRoot().relativize(dirPath).toString())
+                    .build();
+        }
+
+        fileMetadataService.save(dirPath, metadata);
+    }
+
+    public void uploadPathChild(Path parentPath) throws IOException {
+        if (!Files.isDirectory(parentPath))
+            return;
+
+        Files.list(parentPath)
+                .filter(p -> Files.isDirectory(p))
+                .forEach(t -> {
+                    try {
+                        savePathMetadata(t);
+                    } catch (IOException e) {
+                        // Do nothing
+                    }
+                });
+    }
 }

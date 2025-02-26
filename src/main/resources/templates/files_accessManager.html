@@ -1,0 +1,122 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:insert="~{head :: headFragment}"> </head>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"
+  />
+  <body>
+    <div th:insert="~{header :: headerFragment}"></div>
+    <aside th:insert="~{files_aside :: asidebar}"></aside>
+    <main class="file_container">
+      <div class="container flex-col container-align-left">
+        <h1>Control access panel</h1>
+        <p th:text="|Route: ${param.path}|"></p>
+
+        <div class="container" style="gap: 1rem">
+          <a
+            th:href="@{/files/action/go/dir?path={path}(path=${param.path})}"
+            class="button"
+          >
+            <i class="bi bi-arrow-return-left"></i> Back</a
+          >
+
+          <a
+            th:href="@{/files/action/manage/access?path={path}(path=${param.path})}"
+            class="button cyan"
+          >
+            <i class="bi bi-arrow-clockwise"></i> Refresh</a
+          >
+        </div>
+        <div
+          class="container container-between target mtop"
+          style="gap: 4rem; padding: 2rem; align-items: start"
+        >
+          <div class="wcustomfit">
+            <h3>Grant access</h3>
+            <p>
+              <span class="bold" style="color: red">Warning:</span> Users
+              granted access will have read and write permissions, allowing them
+              to view, create directories, and upload files. However, they will
+              not be able to delete existing files.
+            </p>
+            <form
+              th:action="@{/files/action/manage/access/grant}"
+              method="post"
+              class="form"
+            >
+              <label for="email">User's email</label>
+              <input type="hidden" name="path" th:value="${param.path}" />
+              <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="User email"
+                required
+              />
+              <p
+                th:if="${error != null}"
+                th:text="${error}"
+                class="bold"
+                style="color: red"
+              ></p>
+              <button type="submit" class="button cyan">Give access</button>
+            </form>
+          </div>
+
+          <div>
+            <h3>Users with access</h3>
+            <table class="data-table">
+              <thead th:if="${usersWithAccess.size() > 0}">
+                <tr>
+                  <th>Nickname</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <thead th:unless="${usersWithAccess.size() > 0}">
+                <tr>
+                  There are no users with access to this directory
+                </tr>
+              </thead>
+              <tbody
+                th:if="${usersWithAccess.size() > 0}"
+                th:each="user :${usersWithAccess}"
+              >
+                <tr>
+                  <td class="bold" th:text="${user.nickname}"></td>
+                  <td class="bold" th:text="${user.email}"></td>
+                  <td>
+                    <form
+                      th:action="@{/files/action/manage/access/revoke}"
+                      method="post"
+                    >
+                      <input
+                        type="hidden"
+                        name="path"
+                        th:value="${param.path}"
+                      />
+                      <input
+                        id="email"
+                        type="hidden"
+                        name="email"
+                        th:value="${user.email}"
+                      />
+                      <button type="submit" class="button red">
+                        Revoke access
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js"></script>
+  <script th:src="@{/js/app.js}"></script>
+  <script type="module" th:src="@{/js/file_loader.js}"></script>
+</html>

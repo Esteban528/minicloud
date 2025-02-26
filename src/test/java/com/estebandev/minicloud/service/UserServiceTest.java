@@ -34,6 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.estebandev.minicloud.entity.Scopes;
 import com.estebandev.minicloud.entity.User;
+import com.estebandev.minicloud.repository.UserMetadataRepository;
 import com.estebandev.minicloud.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +45,12 @@ public class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private SecurityContextHolder securityContextHolder;
+
+    @Mock
+    private UserMetadataRepository userMetadataRepository;
 
     @InjectMocks
     private UserService userService;
@@ -70,6 +77,20 @@ public class UserServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         userService.findByEmail(email);
+
+        verify(userRepository).findByEmail(email);
+    }
+
+    @Test
+    public void findAllByEmailTest() {
+        String email = "test@minicloud.com";
+        User user = User.builder()
+                .nickname("TestUser")
+                .email(email)
+                .build();
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        userService.findAllDataByEmail(email);
 
         verify(userRepository).findByEmail(email);
     }
@@ -273,5 +294,63 @@ public class UserServiceTest {
 
         boolean result = userService.isAuthenticated();
         assertThat(result).isTrue();
+    }
+
+    @Test
+    void getUserFromAuthTest() {
+        String email = "minicloud@example.com";
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ANYROLE"),
+                new SimpleGrantedAuthority("ANYROLE2"));
+
+        when(authentication.getAuthorities()).thenAnswer(invocation -> authorities);
+        when(authentication.getName()).thenReturn(email);
+
+        User userResult = userService.getUserFromAuth();
+
+        assertThat(userResult.getEmail()).isEqualTo(email);
+        assertThat(userResult.getScopes().get(0).getAuthority()).isEqualTo("ANYROLE");
+        assertThat(userResult.getScopes().get(1).getAuthority()).isEqualTo("ANYROLE2");
+    }
+
+    @Test
+    void getUserAllDataFromAuthTest() {
+        String email = "minicloud@example.com";
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(User.builder().email(email).build()));
+        when(authentication.getName()).thenReturn(email);
+
+        userService.getUserAllDataFromAuth();
+
+        verify(userRepository).findByEmail(email);
+    }
+
+    @Test
+    void findMetadatasByKeySearchTest() {
+        String contain = "dasdas";
+        userService.findMetadatasByKeySearch(contain);
+
+        verify(userMetadataRepository).findByKeyContaining(contain);
+    }
+
+    @Test
+    void findMetadatasByKeySearchTestUserContain() {
+        String contain = "dasdas";
+        User user = User.builder().email("sdfasdfas@minicloud.com").build();
+        userService.findMetadatasByKeySearch(user, contain);
+
+        verify(userMetadataRepository).findByUserAndKeyContaining(user, contain);
     }
 }

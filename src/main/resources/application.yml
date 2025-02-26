@@ -45,6 +45,6 @@ var:
 
 logging:
   level:
-    org.springframework.web: WARN
+    org.springframework.web: TRACE
     org.hibernate: WARN
     # org.springframework.security: TRACE
