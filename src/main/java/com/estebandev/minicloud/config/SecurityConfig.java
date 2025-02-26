@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService userDetailsService;
+    private final FileSecurityAuthorizationManager fileSecurityAuthorizationManager;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -47,9 +49,11 @@ public class SecurityConfig {
                                     "/css/**", "/js/**", "/images/**")
                             .permitAll()
                             .requestMatchers("/admin/**").hasAuthority("ADMIN_DASHBOARD")
-                            .requestMatchers("/files/**").hasAuthority("FILE_DASHBOARD")
+                            .requestMatchers("/files/error").permitAll()
+                            .requestMatchers("/files/**").access(fileSecurityAuthorizationManager)
                             .anyRequest().authenticated();
                 })
+                .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler))
                 .logout(logout -> {
                     logout
                             .logoutUrl("/logout")
@@ -63,7 +67,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    AuthenticationManager authenticationManager(HttpSecurity httpSecurity) {
+    AuthenticationManager authenticationManager() {
         return new ProviderManager(daoAuthenticationProvider());
     }
 
