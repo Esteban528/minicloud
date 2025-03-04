@@ -39,7 +39,7 @@ import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import com.estebandev.minicloud.service.utils.FileData;
 import com.sun.jdi.connect.Connector.Argument;
 
-class FileManagerServiceTest {
+public class FileManagerServiceImplTest {
 
     @TempDir
     Path tempDir;
@@ -51,7 +51,7 @@ class FileManagerServiceTest {
     private FileMetadataService fileMetadataService;
 
     @InjectMocks
-    private FileManagerService fileManagerService;
+    private FileManagerServiceImpl fileManagerService;
 
     @Captor
     ArgumentCaptor<FileMetadata> fileMdCaptor;
