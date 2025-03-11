@@ -25,7 +25,7 @@ spring:
     hibernate:
       ddl-auto: update
     database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
 
   servlet:
     multipart:
@@ -45,5 +45,6 @@ var:
 
 logging:
   level:
-    org.springframework.web: DEBUG
+    org.springframework.web: TRACE
     org.hibernate: WARN
+    # org.springframework.security: TRACE

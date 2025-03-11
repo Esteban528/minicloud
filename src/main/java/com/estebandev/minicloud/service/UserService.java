@@ -2,6 +2,7 @@ package com.estebandev.minicloud.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -10,9 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.estebandev.minicloud.entity.Scopes;
 import com.estebandev.minicloud.entity.User;
+import com.estebandev.minicloud.entity.UserMetadata;
+import com.estebandev.minicloud.repository.UserMetadataRepository;
 import com.estebandev.minicloud.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,14 +25,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMetadataRepository userMetadataRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${var.admin.email}")
     private String adminEmail;
 
-    public User findByEmail(String email) {
+    public User findByEmail(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("The user doesn't exist"));
+        return user;
+    }
+
+    @Transactional
+    public User findAllDataByEmail(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new UsernameNotFoundException("The user doesn't exist"));
+        user.getUserMetadata().size();
         return user;
     }
 
@@ -53,6 +66,10 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(tmpPassword));
         tmpPassword = null;
         makeAuthorities(user);
+        return saveUser(user);
+    }
+
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 
@@ -75,7 +92,7 @@ public class UserService {
         User user = userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("The user doesn't exist"));
         user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
+        saveUser(user);
     }
 
     private void makeAuthorities(User user) {
@@ -92,9 +109,31 @@ public class UserService {
         }
     }
 
-    public User getUserFromAuth() { 
+    public User getUserFromAuth() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        String email = securityContext.getAuthentication().getName();
-        return userRepository.findByEmail(email).get();
+        Authentication auth = securityContext.getAuthentication();
+        var user = User.builder()
+                .email(auth.getName())
+                .build();
+        var scopeList = auth.getAuthorities().stream()
+                .map(a -> Scopes.builder().user(user).authority(a.getAuthority()).build())
+                .toList();
+        user.setScopes(scopeList);
+        return user;
+    }
+
+    @Transactional
+    public User getUserAllDataFromAuth() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication auth = securityContext.getAuthentication();
+        return findAllDataByEmail(auth.getName());
+    }
+
+    public List<UserMetadata> findMetadatasByKeySearch(String contain) {
+        return userMetadataRepository.findByKeyContaining(contain);
+    }
+
+    public Optional<UserMetadata> findMetadatasByKeySearch(User user, String contain) {
+        return userMetadataRepository.findByUserAndKeyContaining(user, contain);
     }
 }

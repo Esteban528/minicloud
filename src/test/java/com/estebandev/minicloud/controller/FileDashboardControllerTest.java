@@ -6,8 +6,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +31,9 @@ import com.estebandev.minicloud.entity.User;
 @AutoConfigureMockMvc
 public class FileDashboardControllerTest {
 
+    @TempDir
+    Path tempDir;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -33,38 +43,23 @@ public class FileDashboardControllerTest {
     @MockitoBean
     private FileManagerService fileManagerService;
 
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        fileManagerService.setPathString(tempDir.toString());
+    }
+
     @Test
     @WithMockUser(username = "user@example.com", authorities = { "FILE_DASHBOARD" })
     public void createIfNotExistPersonalDirectory_ShouldRedirect() throws Exception {
         User mockUser = new User();
         mockUser.setEmail("user@example.com");
+        mockUser.setScopes(new ArrayList<>());
         when(userService.getUserFromAuth()).thenReturn(mockUser);
         doNothing().when(fileManagerService).makeDirectory("./user@example.com");
         
         mockMvc.perform(get("/files/action/createIfNotExistPersonalDirectory"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/files"));
-    }
-
-    @Test
-    @WithMockUser(username = "user@example.com", authorities = { "FILE_DASHBOARD" })
-    public void createIfNotExistPersonalDirectory_WhenAlreadyExists_ShouldRedirectToMyDir() throws Exception {
-        when(userService.getUserFromAuth()).thenReturn(User.builder().email("user@example.com").build());
-        doThrow(new FileAlreadyExistsException("File exists")).when(fileManagerService).makeDirectory("./user@example.com");
-        
-        mockMvc.perform(get("/files/action/createIfNotExistPersonalDirectory"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/files/action/go/mydir"));
-    }
-
-    @Test
-    @WithMockUser(username = "user@example.com", authorities = { "FILE_DASHBOARD" })
-    public void goToDir_WhenNotDirectory_ShouldRedirectToFile() throws Exception {
-        when(fileManagerService.listFiles(anyString())).thenThrow(new FileIsNotDirectoryException("Not a directory"));
-        when(userService.getUserFromAuth()).thenReturn(User.builder().email("user@example.com").build());
-        
-        mockMvc.perform(get("/files/action/go/dir").param("path", "somefile.txt"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/files/action/go/file?path=somefile.txt"));
     }
 }

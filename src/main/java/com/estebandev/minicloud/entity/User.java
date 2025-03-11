@@ -32,8 +32,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @Table(name = "user_tbl")
-@EqualsAndHashCode(callSuper=false, exclude = {"scopes"})
-@ToString(callSuper=false, exclude = {"scopes"})
+@EqualsAndHashCode(callSuper = false, exclude = { "scopes", "userMetadata" })
+@ToString(callSuper = false, exclude = { "scopes", "userMetadata" })
 public class User implements UserDetails, CredentialsContainer {
     @Id
     @SequenceGenerator(name = "user_secuence", sequenceName = "user_secuence", allocationSize = 1)
@@ -55,6 +55,9 @@ public class User implements UserDetails, CredentialsContainer {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Scopes> scopes;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserMetadata> userMetadata;
+
     @Override
     public void eraseCredentials() {
         this.password = null;
@@ -68,5 +71,12 @@ public class User implements UserDetails, CredentialsContainer {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    public List<UserMetadata> getUserMetadata() {
+        if (this.userMetadata == null)
+            this.userMetadata = new ArrayList<>();
+
+        return this.userMetadata;
     }
 }
