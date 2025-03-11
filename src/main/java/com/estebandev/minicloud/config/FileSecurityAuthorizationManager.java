@@ -1,15 +1,12 @@
 package com.estebandev.minicloud.config;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
-import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 import java.util.UUID;
+import java.util.function.Supplier;
 
-import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -17,11 +14,9 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.estebandev.minicloud.entity.FileMetadata;
 import com.estebandev.minicloud.entity.User;
-import com.estebandev.minicloud.entity.UserMetadata;
 import com.estebandev.minicloud.service.FileManagerService;
 import com.estebandev.minicloud.service.FileMetadataService;
 import com.estebandev.minicloud.service.UserService;
@@ -77,10 +72,17 @@ public class FileSecurityAuthorizationManager implements AuthorizationManager<Re
             return new AuthorizationDecision(true);
 
         Path path = fileManagerService.getRoot().resolve(pathString);
+        if (!Files.isDirectory(path)) {
+            path = path.getParent();
+            pathString = path.toString();
+        }
+
         FileMetadata ownerMetadata;
         try {
             ownerMetadata = fileMetadataService.findMetadataFromKey(path, "owner");
         } catch (IOException e) {
+
+            logger.error("Authorization Manager, path={}, Exception=\n{}", pathString, e.getMessage());
             return new AuthorizationDecision(false);
         }
 
@@ -93,6 +95,7 @@ public class FileSecurityAuthorizationManager implements AuthorizationManager<Re
                 .map(um -> UUID.fromString(um.getKey().substring(10)))
                 .toList();
 
-        return new AuthorizationDecision(directoriesWithAccess.contains(UUID.fromString(ownerMetadata.getUuid())));
+        boolean result = directoriesWithAccess.contains(UUID.fromString(ownerMetadata.getUuid()));
+        return new AuthorizationDecision(result);
     }
 }

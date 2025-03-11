@@ -3,6 +3,8 @@ package com.estebandev.minicloud.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -13,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.estebandev.minicloud.entity.FileMetadata;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.entity.UserMetadata;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
@@ -55,7 +59,7 @@ class FileSecurityServiceImplTest {
     private UUID randomUuid = UUID.randomUUID();
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws NoSuchElementException, IOException {
         lenient().when(fileManagerService.getRoot()).thenReturn(tempDir);
     }
 
@@ -271,5 +275,43 @@ class FileSecurityServiceImplTest {
         assertThrows(ServiceException.class, () -> fileSecurityService.revokeAccess(pathString, email));
 
         verify(userService, never()).saveUser(userCaptor.capture());
+    }
+
+    @Test
+    void isUserHasAccessToTest() throws IOException {
+        String pathString = "anyRoute/asdfsf";
+        Path path = tempDir.resolve(pathString);
+        Files.createDirectories(path);
+        when(fileMetadataService.getUuidFromDir(path)).thenReturn(randomUuid);
+        when(fileMetadataService.findMetadataFromKey(any(Path.class), eq("owner"))).thenReturn(
+                FileMetadata.builder().value("asdasd").key("owner").build());
+
+        String email = "example@minicloud.com";
+        User user = User.builder().email(email).build();
+
+        fileSecurityService.isUserHasAccessTo(pathString, user);
+
+        verify(fileMetadataService).getUuidFromDir(path);
+        verify(userService).findMetadatasByKeySearch(user, "ACCESS_TO_" + randomUuid.toString());
+    }
+
+    @Test
+    void isUserFromAuthHasAccessToTest() throws IOException {
+        String pathString = "anyRoute/asdfsf";
+        Path path = tempDir.resolve(pathString);
+        Files.createDirectories(path);
+        String email = "example@minicloud.com";
+        User user = User.builder().email(email).build();
+
+        when(fileMetadataService.getUuidFromDir(path)).thenReturn(randomUuid);
+        when(userService.getUserAllDataFromAuth()).thenReturn(user);
+        when(fileMetadataService.findMetadataFromKey(any(Path.class), eq("owner"))).thenReturn(
+                FileMetadata.builder().value("asdasd").key("owner").build());
+
+        fileSecurityService.isUserFromAuthHasAccessTo(pathString);
+
+        verify(fileMetadataService).getUuidFromDir(path);
+        verify(userService).getUserAllDataFromAuth();
+        verify(userService).findMetadatasByKeySearch(user, "ACCESS_TO_" + randomUuid.toString());
     }
 }

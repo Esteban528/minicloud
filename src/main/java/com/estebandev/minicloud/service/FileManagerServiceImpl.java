@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,9 +59,9 @@ public class FileManagerServiceImpl implements FileManagerService {
         }
     }
 
-    // @PreAuthorize("@customFilesAuthenticationManager.check(#root)")
     @Override
-    public List<FileData> listFiles(String path)
+    @PreAuthorize("@authF.decide(#pathString, false,#root)")
+    public List<FileData> listFiles(String pathString)
             throws FileNotFoundException, FileIsNotDirectoryException, IOException {
         fileLock.readLock().lock();
         try {
@@ -69,7 +69,7 @@ public class FileManagerServiceImpl implements FileManagerService {
             verifyRootDirectory();
 
             Path root = getRoot();
-            Path dir = root.resolve(path);
+            Path dir = root.resolve(pathString);
 
             if (!Files.exists(dir))
                 throw new FileNotFoundException();
@@ -93,40 +93,42 @@ public class FileManagerServiceImpl implements FileManagerService {
     }
 
     @Transactional
-    private void makeDirectory(Path dirPath)
+    @PreAuthorize("@authF.decide(#pathString, false,#root)")
+    private void makeDirectory(Path pathString)
             throws FileAlreadyExistsException, IOException {
         fileLock.writeLock().lock();
         try {
             verifyRootDirectory();
 
-            if (Files.exists(dirPath))
+            if (Files.exists(pathString))
                 throw new FileAlreadyExistsException("The already exist");
 
-            Files.createDirectory(dirPath);
+            Files.createDirectory(pathString);
 
-            fileMetadataService.make(dirPath, userService.getUserFromAuth());
-            savePathMetadata(dirPath);
+            fileMetadataService.make(pathString, userService.getUserFromAuth());
+            savePathMetadata(pathString);
         } finally {
             fileLock.writeLock().unlock();
         }
     }
 
     @Override
-    public void makeDirectory(String dirPathString)
+    public void makeDirectory(String pathString)
             throws FileAlreadyExistsException, IOException {
-        Path dirPath = getRoot().resolve(dirPathString).normalize();
+        Path dirPath = getRoot().resolve(pathString).normalize();
 
         makeDirectory(dirPath);
     }
 
     @Override
-    public void makeDirectory(String dirPathString, String dirName)
+    public void makeDirectory(String pathString, String dirName)
             throws FileAlreadyExistsException, IOException {
-        makeDirectory(getRoot().resolve(dirPathString).normalize().resolve(FileManagerUtils.formatName(dirName)));
+        makeDirectory(getRoot().resolve(pathString).normalize().resolve(FileManagerUtils.formatName(dirName)));
     }
 
     @Override
-    public void uploadFile(String dirPathString, MultipartFile multipartFile)
+    @PreAuthorize("@authF.decide(#pathString, false,#root)")
+    public void uploadFile(String pathString, MultipartFile multipartFile)
             throws IOException, FileIsNotDirectoryException, FileNotFoundException {
         try {
             if (!fileLock.writeLock().tryLock(5, TimeUnit.SECONDS)) {
@@ -136,7 +138,7 @@ public class FileManagerServiceImpl implements FileManagerService {
             try {
                 verifyRootDirectory();
 
-                Path dirPath = getRoot().resolve(dirPathString);
+                Path dirPath = getRoot().resolve(pathString);
 
                 if (!Files.exists(dirPath))
                     throw new FileNotFoundException("File does not exist");
@@ -162,6 +164,7 @@ public class FileManagerServiceImpl implements FileManagerService {
 
     @Override
     @Transactional
+    @PreAuthorize("@authF.decide(#pathString, true,#root)")
     public Path rename(String pathString, String newName) throws IOException {
         try {
             if (!fileLock.writeLock().tryLock(5, TimeUnit.SECONDS)) {
@@ -186,6 +189,7 @@ public class FileManagerServiceImpl implements FileManagerService {
     }
 
     @Override
+    @PreAuthorize("@authF.decide(#pathString, false,#root)")
     public Resource findFile(String pathString) throws FileNotFoundException, IOException {
         fileLock.readLock().lock();
         try {
@@ -211,6 +215,7 @@ public class FileManagerServiceImpl implements FileManagerService {
     }
 
     @Override
+    @PreAuthorize("@authF.decide(#pathString, false,#root)")
     public FileData findFileData(String pathString) throws FileNotFoundException, IOException {
         Path path = getRoot().resolve(pathString).normalize();
         String fileName = path.getFileName().toString();
@@ -231,6 +236,7 @@ public class FileManagerServiceImpl implements FileManagerService {
     }
 
     @Override
+    @PreAuthorize("@authF.decide(#pathString, true,#root)")
     public void delete(String pathString) throws FileNotFoundException, IOException {
         try {
             if (!fileLock.writeLock().tryLock(5, TimeUnit.SECONDS)) {

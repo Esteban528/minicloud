@@ -1,6 +1,5 @@
 package com.estebandev.minicloud.service;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,14 +14,11 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.estebandev.minicloud.entity.FileMetadata;
 import com.estebandev.minicloud.entity.User;
-import com.estebandev.minicloud.entity.UserMetadata;
 import com.estebandev.minicloud.repository.FileMetadataRepository;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 
@@ -89,7 +85,7 @@ public class FileMetadataServiceImpl implements FileMetadataService {
     public UUID getUuidFromDir(Path path)
             throws InvalidPropertiesFormatException, IOException, FileIsNotDirectoryException {
         if (!Files.isDirectory(path))
-            throw new FileIsNotDirectoryException("File is not directory");
+            throw new FileIsNotDirectoryException("File is not directory. Path: " + path.toString());
 
         String uuid;
         uuid = getPropertiesFromDir(path).getProperty("uuid");

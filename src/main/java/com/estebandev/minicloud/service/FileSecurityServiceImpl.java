@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.estebandev.minicloud.entity.FileMetadata;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.entity.UserMetadata;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
@@ -65,6 +66,30 @@ public class FileSecurityServiceImpl implements FileSecurityService {
         revokeAccessTo(fileManagerService.getRoot().resolve(pathString), user);
     }
 
+    @Override
+    public boolean isUserHasAccessTo(String pathString, User user) throws FileIsNotDirectoryException, IOException {
+        if (pathString.startsWith(user.getEmail()))
+            return true;
+
+        Path path = fileManagerService.getRoot().resolve(pathString);
+
+        FileMetadata ownerMetadata = fileMetadataService.findMetadataFromKey(path, "owner");
+        if (ownerMetadata.getValue().equals(user.getEmail()))
+            return true;
+
+        UUID uuid = fileMetadataService.getUuidFromDir(path);
+        Optional<UserMetadata> metadata = userService.findMetadatasByKeySearch(user, "ACCESS_TO_" + uuid.toString());
+        if (metadata.isEmpty())
+            return false;
+
+        return metadata.get().getValue().equals("true");
+    }
+
+    @Override
+    public boolean isUserFromAuthHasAccessTo(String pathString) throws FileIsNotDirectoryException, IOException {
+        return isUserHasAccessTo(pathString, userService.getUserAllDataFromAuth());
+    }
+
     private void grantAccessTo(Path path, User user) throws IOException {
         UUID uuid = fileMetadataService.getUuidFromDir(path);
         String metadataKey = parseMetadataAccess(uuid);
@@ -100,4 +125,5 @@ public class FileSecurityServiceImpl implements FileSecurityService {
     private static String parseMetadataAccess(UUID uuid) {
         return String.format("ACCESS_TO_%s", uuid.toString());
     }
+
 }

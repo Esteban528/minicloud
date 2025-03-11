@@ -12,6 +12,10 @@ import com.estebandev.minicloud.service.exception.ServiceException;
 public interface FileSecurityService {
     List<User> getUserWithAccessTo(String pathString) throws FileIsNotDirectoryException, IOException;
 
+    boolean isUserHasAccessTo(String pathString, User user) throws FileIsNotDirectoryException, IOException;
+
+    boolean isUserFromAuthHasAccessTo(String pathString) throws FileIsNotDirectoryException, IOException;
+
     void grantAccess(String pathString, String email)
             throws UsernameNotFoundException, IOException, ServiceException;
 
