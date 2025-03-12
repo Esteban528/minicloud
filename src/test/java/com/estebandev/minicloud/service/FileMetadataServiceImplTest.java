@@ -2,7 +2,9 @@ package com.estebandev.minicloud.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,12 +14,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
 import com.estebandev.minicloud.entity.FileMetadata;
 import com.estebandev.minicloud.entity.User;
-import com.estebandev.minicloud.entity.UserMetadata;
 import com.estebandev.minicloud.repository.FileMetadataRepository;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,6 +167,58 @@ public class FileMetadataServiceImplTest {
             props.loadFromXML(is);
         }
         assertThat(props.getProperty("uuid")).isEqualTo(testUuid);
+    }
+
+    @Test
+    void findMetadataFromKeyTest_SuccessFull() {
+        String uuid = UUID.randomUUID().toString();
+        String key = "testKey";
+        Optional<FileMetadata> fileMetadataOptional = Optional.of(FileMetadata.builder().build());
+        when(fileMetadataRepository.findByUuidAndKey(uuid, key)).thenReturn(fileMetadataOptional);
+
+        fileMetadataService.findMetadataFromKey(uuid, key);
+
+        verify(fileMetadataRepository).findByUuidAndKey(uuid, key);
+    }
+
+    @Test
+    void findMetadataFromKeyTest_NoSuchElementException() {
+        String uuid = UUID.randomUUID().toString();
+        String key = "testKey";
+
+        assertThrows(NoSuchElementException.class, () -> {
+            fileMetadataService.findMetadataFromKey(uuid, key);
+        });
+
+        verify(fileMetadataRepository).findByUuidAndKey(uuid, key);
+    }
+
+    @Test
+    void findMetadataFromKeyAndValueContainsTest() throws NoSuchElementException, IOException {
+        String key = "testKey";
+        String contains = "sdfas";
+        Path path = testDirectory;
+        fileMetadataService.make(path, testUser);
+        List<FileMetadata> fileMetadataOptional = List.of(FileMetadata.builder().build());
+        when(fileMetadataRepository.findByUuidAndKeyAndValueContaining(anyString(), eq(key), eq(contains)))
+                .thenReturn(fileMetadataOptional);
+
+        fileMetadataService.findMetadataFromKeyAndValueContains(path, key, contains);
+
+        verify(fileMetadataRepository).findByUuidAndKeyAndValueContaining(anyString(), eq(key), eq(contains));
+    }
+
+    @Test
+    void findMetadataFromKeyAndValueContainsTest_IOException() {
+        String key = "testKey";
+        String contains = "sdfas";
+        Path path = testDirectory.resolve("adasda");
+
+        assertThrows(IOException.class, () -> {
+            fileMetadataService.findMetadataFromKeyAndValueContains(path, key, contains);
+        });
+
+        verify(fileMetadataRepository, never()).findByUuidAndKeyAndValueContaining(anyString(), eq(key), eq(contains));
     }
 
     String generateMetadata(Path path) throws IOException {

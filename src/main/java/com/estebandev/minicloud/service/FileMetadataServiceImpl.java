@@ -116,6 +116,14 @@ public class FileMetadataServiceImpl implements FileMetadataService {
         return findMetadataFromKey(getUuidFromDir(path).toString(), key);
     }
 
+	@Override
+	public List<FileMetadata> findMetadataFromKeyAndValueContains(Path path, String key, String valueContains)
+			throws IOException {
+
+        String uuid = getUuidFromDir(path).toString();
+        return fileMetadataRepository.findByUuidAndKeyAndValueContaining(uuid, key, valueContains);
+	}
+
     public Properties getPropertiesFromDir(Path path) throws InvalidPropertiesFormatException, IOException {
         Path metadataPath = getMetadataPathFromDir(path);
 
