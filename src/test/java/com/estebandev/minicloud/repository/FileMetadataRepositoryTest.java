@@ -4,8 +4,11 @@ import com.estebandev.minicloud.entity.FileMetadata;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,6 +57,7 @@ class FileMetadataRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testUpdateUuid() {
         // Arrange
         String oldUuid = "old-uuid";
@@ -78,6 +82,7 @@ class FileMetadataRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testDeleteByUuid() {
         // Arrange
         String uuidToDelete = "delete-uuid";
@@ -94,6 +99,7 @@ class FileMetadataRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testDeleteById() {
         // Arrange
         FileMetadata metadata = fileMetadataRepository.save(
@@ -111,6 +117,7 @@ class FileMetadataRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testComplexOperationsFlow() {
         // Initial state
         assertThat(fileMetadataRepository.count()).isZero();
@@ -135,5 +142,93 @@ class FileMetadataRepositoryTest {
         int deleted = fileMetadataRepository.deleteByUuid("uuid-b");
         assertThat(deleted).isEqualTo(1);
         assertThat(fileMetadataRepository.count()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    void testFindByUuidAndKey() {
+        // Arrange
+        String uuid = "test-uuid-key";
+        String key = "unique-key";
+        fileMetadataRepository.saveAll(List.of(
+                FileMetadata.builder().uuid(uuid).key(key).value("value1").build(),
+                FileMetadata.builder().uuid(uuid).key("other-key").value("value2").build()));
+
+        // Act
+        Optional<FileMetadata> result = fileMetadataRepository.findByUuidAndKey(uuid, key);
+
+        // Assert
+        assertThat(result).isPresent();
+        assertThat(result.get().getKey()).isEqualTo(key);
+        assertThat(result.get().getValue()).isEqualTo("value1");
+    }
+
+    @Test
+    @Transactional
+    void testFindByUuidAndKeyBatch() {
+        // Arrange
+        String key = "unique-key";
+        String uuid1 = UUID.randomUUID().toString();
+        String uuid2 = UUID.randomUUID().toString();
+        fileMetadataRepository.saveAll(List.of(
+                FileMetadata.builder().uuid(uuid1).key(key).value("value1").build(),
+                FileMetadata.builder().uuid(uuid2).key(key).value("value2").build()));
+
+        List<String> uuids = List.of(uuid1, uuid2);
+
+        // Act
+        List<FileMetadata> result = fileMetadataRepository.findByUuidsAndKey(uuids, key);
+
+        result.forEach(x -> System.out.println(x.getValue()));
+        // Assert
+        assertThat(result.size() == 2).isTrue();
+    }
+
+    @Test
+    @Transactional
+    void testFindByUuidAndKeyAndValueContaining() {
+        // Arrange
+        String uuid = "contain-test-uuid";
+        String key = "description";
+        String searchTerm = "urgent";
+
+        fileMetadataRepository.saveAll(List.of(
+                FileMetadata.builder().uuid(uuid).key(key).value("This is urgent").build(),
+                FileMetadata.builder().uuid(uuid).key(key).value("Not urgent").build(),
+                FileMetadata.builder().uuid(uuid).key("other-key").value("urgent").build()));
+
+        // Act
+        List<FileMetadata> results = fileMetadataRepository.findByUuidAndKeyAndValueContaining(uuid, key, searchTerm);
+
+        // Assert
+        assertThat(results)
+                .hasSize(2)
+                .allSatisfy(m -> {
+                    assertThat(m.getValue()).containsIgnoringCase(searchTerm);
+                });
+    }
+
+    @Test
+    @Transactional
+    void testFindByKeyAndValueContaining() {
+        // Arrange
+        String uuid = "contain-test-uuid";
+        String key = "description";
+        String searchTerm = "urgent";
+
+        fileMetadataRepository.saveAll(List.of(
+                FileMetadata.builder().uuid(uuid).key(key).value("This is urgent").build(),
+                FileMetadata.builder().uuid(uuid).key(key).value("Not urgent").build(),
+                FileMetadata.builder().uuid(uuid).key("other-key").value("urgent").build()));
+
+        // Act
+        List<FileMetadata> results = fileMetadataRepository.findByKeyAndValueContaining(key, searchTerm);
+
+        // Assert
+        assertThat(results)
+                .hasSize(2)
+                .allSatisfy(m -> {
+                    assertThat(m.getValue()).containsIgnoringCase(searchTerm);
+                });
     }
 }

@@ -67,11 +67,11 @@ public class FileManagerControllerTest {
     @MockitoBean
     protected FileSecurityServiceImpl fileSecurityService;
 
-    //@MockitoBean
-    //protected AdminService adminService;
+    // @MockitoBean
+    // protected AdminService adminService;
     //
-    //@MockitoBean
-    //protected CodeAuthServiceTest codeAuthService;
+    // @MockitoBean
+    // protected CodeAuthServiceTest codeAuthService;
 
     private User user = User.builder()
             .email("user@example.com")
@@ -104,6 +104,16 @@ public class FileManagerControllerTest {
         mockMvc.perform(get("/files/action/go/mydir"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/files/action/go/dir?path=user%40example.com"));
+    }
+
+    @Test
+    @WithMockUser(username = "user@example.com", authorities = { "FILE_DASHBOARD" })
+    public void actionGoToMyShortcuts_success() throws Exception {
+        User user = User.builder().email("user@example.com").build();
+        when(userService.getUserAllDataFromAuth()).thenReturn(user);
+        mockMvc.perform(get("/files/action/go/myshortcuts"))
+                .andExpect(status().isOk());
+        verify(fileSecurityService).getFileListUserHasAccess(user);
     }
 
     @Test
@@ -323,7 +333,8 @@ public class FileManagerControllerTest {
         void grantAccess_userNotFound() throws Exception {
             String pathString = user.getEmail();
 
-            doThrow(UsernameNotFoundException.class).when(fileSecurityService).grantAccess(pathString, "invalid@user.com");
+            doThrow(UsernameNotFoundException.class).when(fileSecurityService).grantAccess(pathString,
+                    "invalid@user.com");
 
             mockMvc.perform(post("/files/action/manage/access/grant")
                     .param("path", pathString)

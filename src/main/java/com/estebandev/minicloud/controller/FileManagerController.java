@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,7 +25,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.service.FileManagerService;
 import com.estebandev.minicloud.service.FileSecurityService;
-import com.estebandev.minicloud.service.FileSecurityServiceImpl;
 import com.estebandev.minicloud.service.UserService;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import com.estebandev.minicloud.service.exception.ServiceException;
@@ -64,6 +60,15 @@ public class FileManagerController {
         User user = userService.getUserFromAuth();
         redirectAttributes.addAttribute("path", user.getEmail());
         return "redirect:/files/action/go/dir";
+    }
+
+    @GetMapping("/go/myshortcuts")
+    public String showDirectoriesWithAccess(Model model) {
+        User user = userService.getUserAllDataFromAuth();
+        List<FileData> files = fileSecurityService.getFileListUserHasAccess(user);
+        model.addAttribute("showrtcuts", true);
+        model.addAttribute("files", files);
+        return "files_shortcuts";
     }
 
     @GetMapping("/go/dir")

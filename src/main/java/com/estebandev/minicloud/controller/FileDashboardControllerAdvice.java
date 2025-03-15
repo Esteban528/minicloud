@@ -48,6 +48,7 @@ public class FileDashboardControllerAdvice {
 
         boolean userDirectory = fileManagerService.isValidDirectory(user.getEmail());
         model.addAttribute("nickname", user.getNickname());
+        model.addAttribute("email", user.getEmail());
         model.addAttribute("userDirectoryExists", userDirectory);
         model.addAttribute("accessToDashboard", hasAccess);
 

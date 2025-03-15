@@ -353,4 +353,13 @@ public class UserServiceTest {
 
         verify(userMetadataRepository).findByUserAndKeyContaining(user, contain);
     }
+
+    @Test
+    void findMetadatasByKeySearchTestUserContainList() {
+        String contain = "dasdas";
+        User user = User.builder().email("sdfasdfas@minicloud.com").build();
+        userService.findMetadatasByKeySearchList(user, contain);
+
+        verify(userMetadataRepository).findByUserAndKeyContaining(user, contain);
+    }
 }

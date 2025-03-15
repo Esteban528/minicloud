@@ -134,6 +134,10 @@ public class UserService {
     }
 
     public Optional<UserMetadata> findMetadatasByKeySearch(User user, String contain) {
+        return findMetadatasByKeySearchList(user, contain).stream().findFirst();
+    }
+
+    public List<UserMetadata> findMetadatasByKeySearchList(User user, String contain) {
         return userMetadataRepository.findByUserAndKeyContaining(user, contain);
     }
 }

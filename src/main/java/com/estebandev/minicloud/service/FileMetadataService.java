@@ -17,7 +17,11 @@ public interface FileMetadataService {
 
     FileMetadata findMetadataFromKey(String uuid, String key) throws NoSuchElementException;
 
+    List<FileMetadata> findMetadataFromKeyBatch(List<String> uuids, String key);
+
     FileMetadata findMetadataFromKey(Path path, String key) throws IOException, NoSuchElementException;
+    
+    List<FileMetadata> findMetadataFromKeyAndValueContains(String key, String valueContains);
 
     void make(Path dirPath, User owner) throws IOException, FileIsNotDirectoryException;
     
