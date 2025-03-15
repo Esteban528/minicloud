@@ -34,6 +34,7 @@ public class FileSecurityAuthorizationManager implements AuthorizationManager<Re
     private final List<String> acceptedUris = List.of(
             "/files",
             "/files/action/createIfNotExistPersonalDirectory",
+            "/files/action/go/myshortcuts",
             "/files/action/go/mydir");
 
     @Override

@@ -194,32 +194,43 @@ public class FileMetadataServiceImplTest {
     }
 
     @Test
+    void findMetadataFromKeyBatchTest_SuccessFull() {
+        String uuid1 = UUID.randomUUID().toString();
+        String uuid2 = UUID.randomUUID().toString();
+        String key = "testKey";
+        List<String> uuids = List.of(uuid1, uuid2);
+
+        fileMetadataService.findMetadataFromKeyBatch(uuids, key);
+
+        verify(fileMetadataRepository).findByUuidsAndKey(uuids, key);
+    }
+
+    @Test
     void findMetadataFromKeyAndValueContainsTest() throws NoSuchElementException, IOException {
         String key = "testKey";
         String contains = "sdfas";
         Path path = testDirectory;
         fileMetadataService.make(path, testUser);
         List<FileMetadata> fileMetadataOptional = List.of(FileMetadata.builder().build());
-        when(fileMetadataRepository.findByUuidAndKeyAndValueContaining(anyString(), eq(key), eq(contains)))
+        when(fileMetadataRepository.findByKeyAndValueContaining(eq(key), eq(contains)))
                 .thenReturn(fileMetadataOptional);
 
-        fileMetadataService.findMetadataFromKeyAndValueContains(path, key, contains);
+        fileMetadataService.findMetadataFromKeyAndValueContains(key, contains);
 
-        verify(fileMetadataRepository).findByUuidAndKeyAndValueContaining(anyString(), eq(key), eq(contains));
+        verify(fileMetadataRepository).findByKeyAndValueContaining(eq(key), eq(contains));
     }
 
-    @Test
-    void findMetadataFromKeyAndValueContainsTest_IOException() {
-        String key = "testKey";
-        String contains = "sdfas";
-        Path path = testDirectory.resolve("adasda");
-
-        assertThrows(IOException.class, () -> {
-            fileMetadataService.findMetadataFromKeyAndValueContains(path, key, contains);
-        });
-
-        verify(fileMetadataRepository, never()).findByUuidAndKeyAndValueContaining(anyString(), eq(key), eq(contains));
-    }
+    //@Test
+    //void findMetadataFromKeyAndValueContainsTest_IOException() {
+    //    String key = "testKey";
+    //    String contains = "sdfas";
+    //
+    //    assertThrows(IOException.class, () -> {
+    //        fileMetadataService.findMetadataFromKeyAndValueContains(key, contains);
+    //    });
+    //
+    //    verify(fileMetadataRepository, never()).findByKeyAndValueContaining(eq(key), eq(contains));
+    //}
 
     String generateMetadata(Path path) throws IOException {
         String uuid = UUID.randomUUID().toString();

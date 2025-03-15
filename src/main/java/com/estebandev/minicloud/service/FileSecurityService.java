@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import com.estebandev.minicloud.service.exception.ServiceException;
+import com.estebandev.minicloud.service.utils.FileData;
 
 public interface FileSecurityService {
     List<User> getUserWithAccessTo(String pathString) throws FileIsNotDirectoryException, IOException;
@@ -21,4 +22,6 @@ public interface FileSecurityService {
 
     void revokeAccess(String pathString, String email)
             throws IOException, ServiceException;
+
+    List<FileData> getFileListUserHasAccess(User user);
 }

@@ -13,10 +13,16 @@
         <p th:text="${nickname}"></p>
       </div>
       <div class="file_asidebar_section">
-        <div class="" th:if="${userDirectoryExists}">
+        <div class="" th:if="${userDirectoryExists and (path == null or path != email)}">
           <a th:href="@{/files/action/go/mydir}">
             <i class="bi bi-folder2-open"></i>
             <p>My directory</p>
+          </a>
+        </div>
+        <div class="" th:if="${userDirectoryExists and showrtcuts == null}">
+          <a th:href="@{/files/action/go/myshortcuts}">
+            <i class="bi bi-folder2-open"></i>
+            <p>Shortcuts and Directories</p>
           </a>
         </div>
         <div class="" th:unless="${userDirectoryExists}">

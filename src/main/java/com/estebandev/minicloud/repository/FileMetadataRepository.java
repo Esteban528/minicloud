@@ -24,7 +24,12 @@ public interface FileMetadataRepository extends JpaRepository<FileMetadata, Long
     @Query("DELETE FROM FileMetadata fm WHERE fm.uuid = :uuid")
     int deleteByUuid(@Param("uuid") String uuid);
 
+    @Query("SELECT fm FROM FileMetadata fm WHERE fm.uuid IN :uuids AND fm.key = :key")
+    List<FileMetadata> findByUuidsAndKey(@Param("uuids") List<String> uuids, @Param("key") String key);
+
     Optional<FileMetadata> findByUuidAndKey(String uuid, String key);
 
     List<FileMetadata> findByUuidAndKeyAndValueContaining(String uuid, String key, String contain);
+
+    List<FileMetadata> findByKeyAndValueContaining(String key, String contain);
 }
