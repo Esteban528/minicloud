@@ -28,7 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 
-@ControllerAdvice(assignableTypes = {FileDashboardController.class, FileManagerController.class})
+@ControllerAdvice(assignableTypes = { FileDashboardController.class, FileManagerController.class })
 @RequiredArgsConstructor
 public class FileDashboardControllerAdvice {
     private final UserService userService;
@@ -37,7 +37,18 @@ public class FileDashboardControllerAdvice {
 
     @SuppressWarnings("rawtypes")
     private final Map<Class, String> predefineMessages = Map.ofEntries(
-            Map.entry(HandlerMethodValidationException.class, "Illegal characters"));
+            Map.entry(FileNotFoundException.class,
+                    "We couldn't find the file you're looking for. Please check the file name and try again."),
+            Map.entry(IllegalArgumentException.class,
+                    "It looks like something is wrong with the information you entered. Please check and try again. Illegal characters"),
+            Map.entry(MaxUploadSizeExceededException.class,
+                    "The file you’re trying to upload is too large. Please choose a smaller file."),
+            Map.entry(ConstraintViolationException.class,
+                    "Some of the information you provided is incorrect or missing. Please review and try again."),
+            Map.entry(HandlerMethodValidationException.class,
+                    "Oops! It looks like you used some invalid characters. Please remove them and try again."),
+            Map.entry(AccessDeniedException.class,
+                    "You don’t have permission to do this. If you think this is a mistake, please contact support."));
 
     @ModelAttribute
     public void addModelAttributes(Model model, HttpServletRequest request) {
@@ -53,8 +64,8 @@ public class FileDashboardControllerAdvice {
         model.addAttribute("accessToDashboard", hasAccess);
 
         String pathString = request.getParameter("path");
-        if(pathString != null && !pathString.isEmpty()){
-            model.addAttribute("ownsDir", pathString.contains(user.getEmail()));          
+        if (pathString != null && !pathString.isEmpty()) {
+            model.addAttribute("ownsDir", pathString.contains(user.getEmail()));
         }
     }
 
@@ -65,12 +76,13 @@ public class FileDashboardControllerAdvice {
     public String manageIOException(RedirectAttributes redirectAttributes, Exception e,
             HttpServletRequest request) {
         logger.debug("Exception handler invoked. Exception {} \nMessage: {}", e.getClass(), e.getMessage());
+        logger.trace(e.getStackTrace().toString());
 
         String errorMessage = String.format("The action is not possible. %s", e.getMessage());
+        String pathString = request.getParameter("path");
 
         redirectAttributes.addFlashAttribute("error", predefineMessages.getOrDefault(e.getClass(), errorMessage));
-
-        String pathString = request.getParameter("path");
+        redirectAttributes.addFlashAttribute("pathString", pathString);
 
         String parent = pathString;
         if (!SecurityContextHolder.getContext().getAuthentication().getName().equals(pathString))

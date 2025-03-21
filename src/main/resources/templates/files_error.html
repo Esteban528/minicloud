@@ -9,6 +9,7 @@
         <div class="target">
           <h1><i style="color: red" class="bi bi-emoji-frown"></i> Error</h1>
           <p th:if="${error != null}" th:text="${error}"></p>
+          <p th:if="${error != null}" th:text="|Path where the error has ocurred: ${pathString}|"></p>
           <p th:unless="${error != null}">
             An error has ocurred, try again later.
           </p>
