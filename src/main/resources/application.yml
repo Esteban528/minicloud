@@ -34,6 +34,7 @@ spring:
       resolve-lazily: true
 
 var:
+  env: dev # dev, prod
   title: ${spring.application.name}
   filepath: ./files
   admin:
