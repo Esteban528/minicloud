@@ -25,6 +25,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.estebandev.minicloud.config.CustomErrorController;
 import com.estebandev.minicloud.controller.dto.UserDTO;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.service.AdminService;
@@ -39,6 +40,9 @@ public class AdminControllerTest {
 
     @MockitoBean
     private AdminService adminService;
+
+    @MockitoBean
+    private CustomErrorController customErrorController;
 
     @Test
     @WithMockUser(username = "user", roles = { "USER" })

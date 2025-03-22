@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.estebandev.minicloud.service.FileManagerService;
 import com.estebandev.minicloud.service.UserService;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
+import com.estebandev.minicloud.config.CustomErrorController;
 import com.estebandev.minicloud.entity.User;
 
 @SpringBootTest
@@ -42,6 +43,9 @@ public class FileDashboardControllerTest {
 
     @MockitoBean
     private FileManagerService fileManagerService;
+
+    @MockitoBean
+    private CustomErrorController customErrorController;
 
     @BeforeEach
     void setUp() {

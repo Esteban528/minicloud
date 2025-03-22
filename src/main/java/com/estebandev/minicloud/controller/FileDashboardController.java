@@ -17,13 +17,4 @@ public class FileDashboardController {
     public String showDashboard(Model model) {
         return "redirect:/files/action/createIfNotExistPersonalDirectory";
     }
-
-    @GetMapping("/error")
-    public String showErrorPopup(@RequestParam(required = false, defaultValue = "", name = "msg") String paramError,
-            Model model) {
-        if (!paramError.isEmpty())
-            model.addAttribute("error", paramError);
-
-        return "files_error";
-    }
 }

@@ -47,6 +47,7 @@ import com.estebandev.minicloud.service.FileSecurityServiceImpl;
 import com.estebandev.minicloud.service.UserService;
 import com.estebandev.minicloud.service.exception.FileIsNotDirectoryException;
 import com.estebandev.minicloud.service.utils.FileData;
+import com.estebandev.minicloud.config.CustomErrorController;
 import com.estebandev.minicloud.entity.User;
 
 @SpringBootTest
@@ -66,6 +67,9 @@ public class FileManagerControllerTest {
 
     @MockitoBean
     protected FileSecurityServiceImpl fileSecurityService;
+
+    @MockitoBean
+    protected CustomErrorController customErrorController;
 
     // @MockitoBean
     // protected AdminService adminService;
