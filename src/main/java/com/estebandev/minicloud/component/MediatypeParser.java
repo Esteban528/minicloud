@@ -2,11 +2,7 @@ package com.estebandev.minicloud.component;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class MediatypeParser {
-    static Logger logger = LoggerFactory.getLogger(MediatypeParser.class);
     private static final Map<String, String> TYPES = Map.ofEntries(
             Map.entry("css", "text/css"),
             Map.entry("js", "text/javascript"),
@@ -93,7 +89,6 @@ public class MediatypeParser {
             Map.entry("bin", "application/octet-stream"));
 
     public static String getMediaType(String extension) {
-        logger.info("Extension {}", extension);
         if (extension == null) {
             throw new IllegalArgumentException("Extension cannot be null");
         }
