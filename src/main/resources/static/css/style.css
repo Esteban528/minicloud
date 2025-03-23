@@ -502,8 +502,6 @@ main {
   border: 1px solid var(---black);
 }
 
-.file_iconUser > p {
-}
 
 .file_iconUser img {
   max-width: 3rem;
@@ -518,7 +516,7 @@ main {
 }
 
 .file_asidebar_section a,
-.file_asidebar_section button {
+.file_asidebar_section button:not(.button) {
   display: flex;
   align-items: center;
   gap: 1rem;
