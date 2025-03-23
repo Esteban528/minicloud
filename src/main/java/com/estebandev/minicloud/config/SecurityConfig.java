@@ -39,7 +39,7 @@ public class SecurityConfig {
                             .loginPage("/login")
                             .usernameParameter("email")
                             .passwordParameter("password")
-                            .successForwardUrl("/");
+                            .defaultSuccessUrl("/");
 
                 })
                 .authorizeHttpRequests(httz -> {
