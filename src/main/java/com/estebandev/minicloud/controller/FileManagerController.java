@@ -22,6 +22,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.estebandev.minicloud.component.MediatypeParser;
 import com.estebandev.minicloud.entity.User;
 import com.estebandev.minicloud.service.FileManagerService;
 import com.estebandev.minicloud.service.FileSecurityService;
@@ -133,19 +134,28 @@ public class FileManagerController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(
-            @RequestParam(required = true, name = "path") String pathString) throws IOException {
-
-        HttpHeaders headers = new HttpHeaders();
+    public ResponseEntity<Resource> downloadFile(@RequestParam(name = "path") String pathString) throws IOException {
         Resource resource;
         try {
             resource = fileManagerService.findFile(pathString);
         } catch (FileNotFoundException e) {
             throw new IOException(e.getMessage());
         }
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename());
 
-        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        String filename = resource.getFilename();
+        String contentType = FileManagerUtils.getMimeType(fileManagerService.getRoot().resolve(pathString));
+
+        if (contentType == null) {
+            contentType = "application/octet-stream"; // Fallback si no se detecta
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
     }
 
     @PostMapping("/upload")
