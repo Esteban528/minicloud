@@ -23,10 +23,15 @@ async function renderCode(path) {
   try {
     const code = await sendRequestAsync(path, "GET");
     const textContainer = document.querySelector("#text-container");
-    textContainer.innerHTML = `<pre><code>${code}</code></pre>`;
-    hljs.highlightElement(textContainer.querySelector('code'));
 
+    const preElement = document.createElement("pre");
+    const codeElement = document.createElement("code");
+    preElement.appendChild(codeElement);
+    codeElement.innerHTML = escapeHTML(code);
+
+    hljs.highlightElement(codeElement);
     setupCopyButton(code);
+    textContainer.appendChild(preElement);
   } catch (error) {
     handleError(error);
   }
@@ -90,3 +95,11 @@ function handleError(error) {
   const textContainer = document.querySelector("#text-container");
   textContainer.innerHTML = `<p style="color: red;">Error loading file: ${error.message}</p>`;
 }
+
+function escapeHTML(code) {
+  return code
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
