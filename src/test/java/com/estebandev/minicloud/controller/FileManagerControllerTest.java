@@ -294,7 +294,7 @@ public class FileManagerControllerTest {
                     .param("path", pathString))
                     .andExpect(status().isOk())
                     .andDo(print())
-                    .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=text.txt"));
+                    .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"text.txt\""));
         }
 
         @Test
