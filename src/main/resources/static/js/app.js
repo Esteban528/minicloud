@@ -1,7 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
   dotButton();
   passwordInputButton();
+  submitButtonsAnimation();
 })
+
+function submitButtonsAnimation() {
+  const formList = document.querySelectorAll("form");
+
+  formList.forEach(form => {
+    form.addEventListener("submit", (e) => {
+
+      const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+      if (submitButton) {
+        submitButton.classList.add("cyan-disabled");
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<div class="lds-ring"><div></div><div></div><div></div><div></div></div>`;
+      }
+    });
+  });
+}
 
 function dotButton() {
   const dotsButton = document.querySelectorAll(".dot-button");
