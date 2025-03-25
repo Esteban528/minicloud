@@ -20,10 +20,13 @@ function getFileExtension(filePath) {
 }
 
 async function renderCode(path) {
-  try {
-    const code = await sendRequestAsync(path, "GET");
-    const textContainer = document.querySelector("#text-container");
+  const code = await sendRequestAsync(path, "GET");
+  const textContainer = document.querySelector("#text-container");
 
+  if (textContainer == null)
+    return;
+
+  try {
     const preElement = document.createElement("pre");
     const codeElement = document.createElement("code");
     preElement.appendChild(codeElement);
