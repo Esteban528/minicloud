@@ -39,7 +39,12 @@
               class="button-abstract"
               >Raw</a
             >
-            <button type="button" id="copyButton" class="button-abstract">
+            <button
+              th:if="${#strings.contains(fileData.mediaType, 'text')}"
+              type="button"
+              id="copyButton"
+              class="button-abstract"
+            >
               Copy
             </button>
           </div>
@@ -71,7 +76,10 @@
             ></div>
           </div>
 
-          <div th:if="${#strings.contains(fileData.mediaType, 'video')}" class="rfile_multimedia_container">
+          <div
+            th:if="${#strings.contains(fileData.mediaType, 'video')}"
+            class="rfile_multimedia_container"
+          >
             <video
               class="rfile_multimedia"
               controls
