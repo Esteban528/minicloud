@@ -3,7 +3,7 @@
   <head th:fragment="headFragment">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title></title>
+    <title th:text="|${title} - ${mainEndpoint} |"></title>
     <link
       rel="stylesheet"
       type="text/css"
@@ -11,6 +11,7 @@
       href="../static/css/style.css"
       th:href="@{/css/style.css}"
     />
+    <link rel="icon" type="image/x-icon" th:href="@{/images/cloud.ico}">
 
     <link
       href="https://necolas.github.io/normalize.css/8.0.1/normalize.css"
