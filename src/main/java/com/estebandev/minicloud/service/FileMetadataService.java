@@ -15,6 +15,8 @@ public interface FileMetadataService {
 
     List<FileMetadata> findMetadata(Path path) throws IOException;
 
+    List<FileMetadata> findMetadataFromKey(String key);
+
     FileMetadata findMetadataFromKey(String uuid, String key) throws NoSuchElementException;
 
     List<FileMetadata> findMetadataFromKeyBatch(List<String> uuids, String key);

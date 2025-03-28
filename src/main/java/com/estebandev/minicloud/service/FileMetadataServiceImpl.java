@@ -126,6 +126,11 @@ public class FileMetadataServiceImpl implements FileMetadataService {
         return fileMetadataRepository.findByKeyAndValueContaining(key, valueContains);
     }
 
+	@Override
+	public List<FileMetadata> findMetadataFromKey(String key) {
+        return fileMetadataRepository.findByKey(key);
+	}
+
     public Properties getPropertiesFromDir(Path path) throws InvalidPropertiesFormatException, IOException {
         Path metadataPath = getMetadataPathFromDir(path);
 
